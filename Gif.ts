@@ -99,7 +99,7 @@ module gifken {
                 appExt.setUint8(13, 0x30); // 0
                 appExt.setUint8(14, 3);
                 appExt.setUint8(15, 1);
-                appExt.setUint16(16, this.loopCount);
+                appExt.setUint16(16, this.loopCount, true);
                 appExt.setUint8(18, 0);
                 output.push(appExt);
             }
