@@ -23,9 +23,9 @@ THE SOFTWARE.
  */
 module gifken {
     export class Gif {
-        public standard: string;
-        public width: number;
-        public height: number;
+        private _standard: string;
+        private _width: number;
+        private _height: number;
         public globalTableSize: number;
         public colorResolution: number;
         public sortFlag: boolean;
@@ -40,6 +40,39 @@ module gifken {
             this.frames = [];
         }
 
+        public get standard(): string {
+            return this._standard;
+        }
+
+        public set standard(std: string) {
+            if (std !== "GIF89a" && std !== "GIF87a") {
+                throw new Error("failed gif format");
+            }
+            this._standard = std;
+        }
+
+        public get width(): number {
+            return this._width;
+        }
+
+        public set width(width: number) {
+            if (width > 0xffff || width < 0) {
+                throw new RangeError("width range over: " + width);
+            }
+            this._width = width;
+        }
+
+        public get height(): number {
+            return this._height;
+        }
+
+        public set height(height: number) {
+            if (height > 0xffff || height < 0) {
+                throw new RangeError("height range over: " + height);
+            }
+            this._height = height;
+        }
+
         public writeToBlob(): Blob {
             var output: ArrayBufferView[] = [];
 
@@ -49,14 +82,14 @@ module gifken {
             header.setUint8(1, 73);
             header.setUint8(2, 70);
             header.setUint8(3, 56);
-            if (this.standard === "GIF89a") {
+            if (this._standard === "GIF89a") {
                 header.setUint8(4, 57);
             } else {
                 header.setUint8(4, 55);
             }
             header.setUint8(5, 97);
-            header.setUint16(6, this.width, true);
-            header.setUint16(8, this.height, true);
+            header.setUint16(6, this._width, true);
+            header.setUint16(8, this._height, true);
             var packed = 0;
             if (this.globalTableSize > 0) {
                 packed |= 128;
@@ -140,10 +173,19 @@ module gifken {
                     output.push(frame.localColorTable);
                 }
                 output.push(new Uint8Array([frame.lzwCode]));
-                frame.dataList.forEach(function (data) {
-                    output.push(new Uint8Array([data.byteLength]));
-                    output.push(data);
-                });
+                var idx = 0, compressedBytes = frame.compressedData, l = compressedBytes.length;
+                while (true) {
+                    if (l > idx + 255) {
+                        output.push(new Uint8Array([255]));
+                        output.push(compressedBytes.subarray(idx, idx + 255));
+                        idx += 255;
+                        continue;
+                    }
+                    var bytes = compressedBytes.subarray(idx);
+                    output.push(new Uint8Array([bytes.byteLength]));
+                    output.push(bytes);
+                    break;
+                }
                 output.push(new Uint8Array([0]));
             });
 
@@ -167,9 +209,9 @@ module gifken {
             if (orverwrite) {
                 this.frames.forEach(function (frame, index) {
                     var gif = new Gif();
-                    gif.standard = this.standard;
-                    gif.width = this.width;
-                    gif.height = this.height;
+                    gif.standard = this._standard;
+                    gif.width = this._width;
+                    gif.height = this._height;
                     gif.globalTableSize = this.globalTableSize;
                     gif.colorResolution = this.colorResolution;
                     gif.sortFlag = this.sortFlag;
@@ -184,18 +226,7 @@ module gifken {
                             }
                         }
                         var compressedBytes = compressWithLZW(frame.pixelData, frame.lzwCode);
-                        var dataList = new Array<Uint8Array>();
-                        var idx = 0;
-                        while (true) {
-                            if (compressedBytes.length > idx + 255) {
-                                dataList.push(new Uint8Array(compressedBytes.slice(idx, idx + 255)));
-                                idx += 255;
-                                continue;
-                            }
-                            dataList.push(new Uint8Array(compressedBytes.slice(idx)));
-                            break;
-                        }
-                        frame.dataList = dataList;
+                        frame.compressedData = new Uint8Array(compressedBytes);
                     }
                     gif.frames = [frame];
                     res.push(gif);
@@ -203,9 +234,9 @@ module gifken {
             } else {
                 this.frames.forEach(function (frame) {
                     var gif = new Gif();
-                    gif.standard = this.standard;
-                    gif.width = this.width;
-                    gif.height = this.height;
+                    gif.standard = this._standard;
+                    gif.width = this._width;
+                    gif.height = this._height;
                     gif.globalTableSize = this.globalTableSize;
                     gif.colorResolution = this.colorResolution;
                     gif.sortFlag = this.sortFlag;
@@ -231,24 +262,13 @@ module gifken {
                             }
                         }
                         var compressedBytes = compressWithLZW(frame.pixelData, frame.lzwCode);
-                        var dataList = new Array<Uint8Array>();
-                        var idx = 0;
-                        while (true) {
-                            if (compressedBytes.length > idx + 255) {
-                                dataList.push(new Uint8Array(compressedBytes.slice(idx, idx + 255)));
-                                idx += 255;
-                                continue;
-                            }
-                            dataList.push(new Uint8Array(compressedBytes.slice(idx)));
-                            break;
-                        }
-                        frame.dataList = dataList;
+                        frame.compressedData = new Uint8Array(compressedBytes);
                     }
                 }, this);
             }
-            res.standard = this.standard;
-            res.width = this.width;
-            res.height = this.height;
+            res.standard = this._standard;
+            res.width = this._width;
+            res.height = this._height;
             res.globalTableSize = this.globalTableSize;
             res.colorResolution = this.colorResolution;
             res.sortFlag = this.sortFlag;
@@ -262,8 +282,8 @@ module gifken {
         }
 
         private _readHeader(data: DataView): number {
-            this.standard = String.fromCharCode(data.getInt8(0), data.getInt8(1), data.getInt8(2), data.getInt8(3), data.getInt8(4), data.getInt8(5));
-            if (this.standard !== "GIF89a" && this.standard !== "GIF87a") {
+            this._standard = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5));
+            if (this._standard !== "GIF89a" && this._standard !== "GIF87a") {
                 throw new Error("gif format error");
             }
             this.width = data.getUint16(6, true);
@@ -296,10 +316,8 @@ module gifken {
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
                     var frame = new Frame();
-                    frame.start = offset;
                     offset = this._readGraphicControlExtensionBlock(data, offset, frame);
                     offset = this._readImageBlock(data, offset, frame);
-                    frame.end = offset;
                     this.frames.push(frame);
                     return offset;
                 }
@@ -318,9 +336,7 @@ module gifken {
             }
             if (separator === 0x2c) {
                 var frame = new Frame();
-                frame.start = offset;
                 offset = this._readImageBlock(data, offset, frame);
-                frame.end = offset;
                 this.frames.push(frame);
                 return offset;
             }
@@ -348,15 +364,24 @@ module gifken {
             }
             frame.lzwCode = data.getUint8(offset++);
             var dataList = new Array<Uint8Array>();
+            var totalSize = 0;
             while (true) {
                 var blockSize = data.getUint8(offset++);
+                totalSize += blockSize;
                 if (blockSize === 0) {
                     break;
                 }
                 dataList.push(new Uint8Array((<any>data.buffer).slice(offset, offset + blockSize)));
                 offset += blockSize;
             }
-            frame.dataList = dataList;
+            var bytes = new Uint8Array(totalSize);
+            bytes.set(dataList[0], 0);
+            var len = dataList[0].byteLength;
+            for (var i = 1, l = dataList.length; i < l; ++i) {
+                bytes.set(dataList[i], len);
+                len += dataList[i].byteLength;
+            }
+            frame.compressedData = bytes;
             return offset;
         }
 
@@ -365,7 +390,7 @@ module gifken {
             if (data.getUint8(offset++) !== 0x0b) {
                 throw new Error("faild: _readApplicationExtensionBlock");
             }
-            var app = String.fromCharCode(data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++), data.getInt8(offset++));
+            var app = String.fromCharCode(data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++));
             if (app === "NETSCAPE2.0") {
                 this.isLoop = true;
                 if (data.getUint8(offset++) !== 3) {
@@ -419,8 +444,6 @@ module gifken {
     }
 
     export class Frame {
-        public start: number;
-        public end: number;
         public transparentFlag: boolean;
         public delayCentiSeconds: number;
         public transparentColorIndex: number;
@@ -431,26 +454,14 @@ module gifken {
         public localTableSize: number;
         public lzwCode: number;
         public localColorTable: Uint8Array;
-        public dataList: Uint8Array[];
-        public pixelData: Uint8Array;
+        public compressedData: Uint8Array;
+        public pixelData: Uint8Array; // decompressed
 
         constructor() {
         }
 
         public readData() {
-            var len = 0;
-            for (var i = 0, l = this.dataList.length; i < l; ++i) {
-                len += this.dataList[i].byteLength;
-            }
-            var data = new Uint8Array(len);
-            data.set(this.dataList[0], 0);
-            len = this.dataList[0].byteLength;
-            for (i = 1; i < l; ++i) {
-                data.set(this.dataList[i], len);
-                len += this.dataList[i].byteLength;
-            }
-            var res = lzwDecode(this.lzwCode, data, this.width * this.height);
-            this.pixelData = res;
+            this.pixelData = lzwDecode(this.lzwCode, this.compressedData, this.width * this.height);
         }
     }
 
