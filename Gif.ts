@@ -26,18 +26,45 @@ module gifken {
         private _standard: string;
         private _width: number;
         private _height: number;
-        public globalTableSize: number;
-        public colorResolution: number;
+        private _globalTableSize: number;
+        public colorResolution: number; // FIXME
         public sortFlag: boolean;
         public bgColorIndex: number;
-        public pixelRatio: number;
-        public globalColorTable: Uint8Array;
+        public pixelAspectRatio: number;
+        private _globalColorTable: Uint8Array;
         public frames: Frame[];
         public isLoop: boolean;
         public loopCount: number;
 
-        constructor() {
-            this.frames = [];
+        constructor(donothing?: boolean) {
+            if (donothing) {
+                return;
+            }
+            // default values
+            this._standard = "GIF89a";
+            this._width = 1;
+            this._height = 1;
+            //this.colorResolution = 112; // FIXME
+            this.colorResolution = 0; // FIXME
+            this.sortFlag = false;
+            this.bgColorIndex = 1; // ?
+            this.pixelAspectRatio = 0; // not supported
+            this.globalColorTable = ColorArrayToUint8Array([new Color(0, 0, 0), new Color(255, 255, 255)]);
+            this.frames = [Frame.init()];
+        }
+
+        static parse(buffer: ArrayBuffer): Gif {
+            var gif = new Gif(true);
+            gif.frames = [];
+            var data = new DataView(buffer);
+            var offset = GifParser.readHeader(gif, data);
+            while (true) {
+                offset = GifParser.readBlock(gif, data, offset);
+                if (offset === -1) {
+                    break;
+                }
+            }
+            return gif;
         }
 
         public get standard(): string {
@@ -57,9 +84,9 @@ module gifken {
 
         public set width(width: number) {
             if (width > 0xffff || width < 0) {
-                throw new RangeError("width range over: " + width);
+                throw new RangeError("width range error: " + width);
             }
-            this._width = width;
+            this._width = ~~width;
         }
 
         public get height(): number {
@@ -68,9 +95,14 @@ module gifken {
 
         public set height(height: number) {
             if (height > 0xffff || height < 0) {
-                throw new RangeError("height range over: " + height);
+                throw new RangeError("height range error: " + height);
             }
-            this._height = height;
+            this._height = ~~height;
+        }
+
+        public set globalColorTable(bytes: Uint8Array) {
+            this._globalColorTable = bytes;
+            this._globalTableSize = bytes.byteLength / 3;
         }
 
         public writeToBlob(): Blob {
@@ -91,29 +123,29 @@ module gifken {
             header.setUint16(6, this._width, true);
             header.setUint16(8, this._height, true);
             var packed = 0;
-            if (this.globalTableSize > 0) {
+            if (this._globalTableSize > 0) {
                 packed |= 128;
                 var count = 0;
-                var size = this.globalTableSize;
+                var size = this._globalTableSize;
                 do {
                     size = size >> 1;
                     ++count;
                 } while (size > 1);
                 packed |= count - 1;
             }
-            packed |= this.colorResolution;
+            packed |= this.colorResolution; // FIXME
             if (this.sortFlag) {
                 packed |= 8;
             }
             header.setUint8(10, packed);
             header.setUint8(11, this.bgColorIndex);
-            header.setUint8(12, this.pixelRatio);
+            header.setUint8(12, this.pixelAspectRatio);
             output.push(header);
-            if (this.globalTableSize > 0) {
-                output.push(this.globalColorTable);
+            if (this._globalTableSize > 0) {
+                output.push(this._globalColorTable);
             }
 
-            // write extention
+            // write extension
             if (this.isLoop) {
                 var appExt = new DataView(new ArrayBuffer(19));
                 appExt.setUint8(0, 0x21);
@@ -138,7 +170,7 @@ module gifken {
             }
 
             // write image data
-            this.frames.forEach(function (frame) {
+            this.frames.forEach((frame) => {
                 var image = new DataView(new ArrayBuffer(18));
                 image.setUint8(0, 0x21);
                 image.setUint8(1, 0xf9);
@@ -173,7 +205,12 @@ module gifken {
                     output.push(frame.localColorTable);
                 }
                 output.push(new Uint8Array([frame.lzwCode]));
-                var idx = 0, compressedBytes = frame.compressedData, l = compressedBytes.length;
+                if (frame.compressedData === undefined && frame.pixelData === undefined) {
+                    throw new Error("no image data");
+                }
+                var idx = 0, compressedBytes = frame.compressedData;
+                compressedBytes = compressedBytes || new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
+                var l = compressedBytes.length;
                 while (true) {
                     if (l > idx + 255) {
                         output.push(new Uint8Array([255]));
@@ -193,33 +230,26 @@ module gifken {
             return new Blob(output, { "type": "image\/gif" });
         }
 
-        public parse(buffer: ArrayBuffer) {
-            var data = new DataView(buffer);
-            var offset = this._readHeader(data);
-            while (true) {
-                offset = this._readBlock(data, offset);
-                if (offset === -1) {
-                    break;
-                }
-            }
-        }
-
         public split(orverwrite: boolean): Gif[] {
             var res: Gif[] = [];
             if (orverwrite) {
-                this.frames.forEach(function (frame, index) {
+                this.frames.forEach((frame, index) => {
                     var gif = new Gif();
                     gif.standard = this._standard;
                     gif.width = this._width;
                     gif.height = this._height;
-                    gif.globalTableSize = this.globalTableSize;
-                    gif.colorResolution = this.colorResolution;
+                    gif.colorResolution = this.colorResolution; // FIXME
                     gif.sortFlag = this.sortFlag;
                     gif.bgColorIndex = this.bgColorIndex;
-                    gif.pixelRatio = this.pixelRatio;
-                    gif.globalColorTable = this.globalColorTable;
-                    frame.readData();
+                    gif.pixelAspectRatio = this.pixelAspectRatio;
+                    gif.globalColorTable = this._globalColorTable;
                     if (index !== 0 && frame.transparentFlag) {
+                        if (frame.pixelData === undefined) {
+                            frame.decompress();
+                        }
+                        if (this.frames[index - 1].pixelData === undefined) {
+                            this.frames[index - 1].decompress();
+                        }
                         for (var i = 0, l = frame.pixelData.length; i < l; ++i) {
                             if (frame.pixelData[i] === frame.transparentColorIndex) {
                                 frame.pixelData[i] = this.frames[index - 1].pixelData[i];
@@ -230,32 +260,36 @@ module gifken {
                     }
                     gif.frames = [frame];
                     res.push(gif);
-                }, this);
+                });
             } else {
-                this.frames.forEach(function (frame) {
+                this.frames.forEach((frame) => {
                     var gif = new Gif();
                     gif.standard = this._standard;
                     gif.width = this._width;
                     gif.height = this._height;
-                    gif.globalTableSize = this.globalTableSize;
-                    gif.colorResolution = this.colorResolution;
+                    gif.colorResolution = this.colorResolution; // FIXME
                     gif.sortFlag = this.sortFlag;
                     gif.bgColorIndex = this.bgColorIndex;
-                    gif.pixelRatio = this.pixelRatio;
-                    gif.globalColorTable = this.globalColorTable;
+                    gif.pixelAspectRatio = this.pixelAspectRatio;
+                    gif.globalColorTable = this._globalColorTable;
                     gif.frames = [frame];
                     res.push(gif);
-                }, this);
+                });
             }
             return res;
         }
 
         public playback(overwrite: boolean): Gif {
-            var res: Gif = new Gif();
+            var res = new Gif();
             if (overwrite) {
-                this.frames.forEach(function (frame, index) {
-                    frame.readData();
+                this.frames.forEach((frame, index) => {
                     if (index !== 0 && frame.transparentFlag) {
+                        if (frame.pixelData === undefined) {
+                            frame.decompress();
+                        }
+                        if (this.frames[index - 1].pixelData === undefined) {
+                            this.frames[index - 1].decompress();
+                        }
                         for (var i = 0, l = frame.pixelData.length; i < l; ++i) {
                             if (frame.pixelData[i] === frame.transparentColorIndex) {
                                 frame.pixelData[i] = this.frames[index - 1].pixelData[i];
@@ -264,49 +298,99 @@ module gifken {
                         var compressedBytes = compressWithLZW(frame.pixelData, frame.lzwCode);
                         frame.compressedData = new Uint8Array(compressedBytes);
                     }
-                }, this);
+                });
             }
             res.standard = this._standard;
             res.width = this._width;
             res.height = this._height;
-            res.globalTableSize = this.globalTableSize;
-            res.colorResolution = this.colorResolution;
+            res.colorResolution = this.colorResolution; // FIXME
             res.sortFlag = this.sortFlag;
             res.bgColorIndex = this.bgColorIndex;
-            res.pixelRatio = this.pixelRatio;
-            res.globalColorTable = this.globalColorTable;
+            res.pixelAspectRatio = this.pixelAspectRatio;
+            res.globalColorTable = this._globalColorTable;
             res.frames = this.frames.reverse();
             res.isLoop = this.isLoop;
             res.loopCount = this.loopCount;
             return res;
         }
+    }
 
-        private _readHeader(data: DataView): number {
-            this._standard = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5));
-            if (this._standard !== "GIF89a" && this._standard !== "GIF87a") {
-                throw new Error("gif format error");
-            }
-            this.width = data.getUint16(6, true);
-            this.height = data.getUint16(8, true);
+    export class Frame {
+        public transparentFlag: boolean;
+        public delayCentiSeconds: number;
+        public transparentColorIndex: number;
+        public x: number;
+        public y: number;
+        public width: number;
+        public height: number;
+        public localTableSize: number;
+        public lzwCode: number;
+        public localColorTable: Uint8Array;
+        public compressedData: Uint8Array;
+        public pixelData: Uint8Array; // decompressed
+
+        constructor() {
+        }
+
+        static init() {
+            var frame = new Frame();
+            frame.transparentFlag = false;
+            frame.delayCentiSeconds = 0;
+            frame.transparentColorIndex = 0;
+            frame.x = 0;
+            frame.y = 0;
+            frame.width = 1;
+            frame.height = 1;
+            frame.localTableSize = 0;
+            frame.lzwCode = 2; // ?
+            return frame;
+        }
+
+        public decompress() {
+            this.pixelData = lzwDecode(this.lzwCode, this.compressedData, this.width * this.height);
+        }
+    }
+
+    export class Color {
+        constructor(public r: number, public g: number, public b: number) {
+        }
+    }
+
+    function ColorArrayToUint8Array(colors: Color[]): Uint8Array {
+        var numbers: number[] = [];
+        colors.forEach((color) => {
+            numbers.push(color.r);
+            numbers.push(color.g);
+            numbers.push(color.b);
+        });
+        return new Uint8Array(numbers);
+    }
+
+    class GifParser {
+        static readHeader(gif:Gif, data: DataView): number {
+            gif.standard = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5));
+            gif.width = data.getUint16(6, true);
+            gif.height = data.getUint16(8, true);
             var packed = data.getUint8(10); // Global Color Table Flag(1 bit) Color Resolution(3 bits) Sort Flag(1 bit) Size of Global Color Table(3 bits)
             var tableFlag = packed & 128;
+            var tableSize;
             if (tableFlag !== 128) {
-                this.globalTableSize = 0;
+                tableSize = 0;
             } else {
-                this.globalTableSize = 1 << ((packed & 7) + 1);
+                tableSize = 1 << ((packed & 7) + 1);
             }
-            this.colorResolution = packed & 112;
-            this.sortFlag = (packed & 8) === 8 ? true : false;
-            this.bgColorIndex = data.getUint8(11);
-            this.pixelRatio = data.getUint8(12);
+            gif.colorResolution = packed & 112; // FIXME
+            gif.sortFlag = (packed & 8) === 8 ? true : false;
+            gif.bgColorIndex = data.getUint8(11);
+            gif.pixelAspectRatio = data.getUint8(12);
             if (tableFlag !== 128) {
                 return 13;
             }
-            this.globalColorTable = new Uint8Array(data.buffer, 13, 3 * this.globalTableSize);
-            return 13 + 3 * this.globalTableSize;
+            gif.globalColorTable = new Uint8Array(data.buffer, 13, 3 * tableSize);
+            return 13 + 3 * tableSize;
         }
 
-        private _readBlock(data: DataView, offset: number): number {
+        static readBlock(gif: Gif, data: DataView, offset: number): number {
             var separator = data.getUint8(offset);
             if (separator === 0x3b) {
                 return -1;
@@ -316,35 +400,35 @@ module gifken {
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
                     var frame = new Frame();
-                    offset = this._readGraphicControlExtensionBlock(data, offset, frame);
-                    offset = this._readImageBlock(data, offset, frame);
-                    this.frames.push(frame);
+                    offset = this.readGraphicControlExtensionBlock(gif, data, offset, frame);
+                    offset = this.readImageBlock(gif, data, offset, frame);
+                    gif.frames.push(frame);
                     return offset;
                 }
                 if (label === 0xfe) {
-                    offset = this._readCommentExtensionBlock(data, offset);
+                    offset = this.readCommentExtensionBlock(gif, data, offset);
                     return offset;
                 }
                 if (label === 0xff) {
-                    offset = this._readApplicationExtensionBlock(data, offset);
+                    offset = this.readApplicationExtensionBlock(gif, data, offset);
                     return offset;
                 }
                 if (label === 0x01) {
-                    offset = this._readPlainTextExtensionBlock(data, offset);
+                    offset = this.readPlainTextExtensionBlock(gif, data, offset);
                     return offset;
                 }
             }
             if (separator === 0x2c) {
                 var frame = new Frame();
-                offset = this._readImageBlock(data, offset, frame);
-                this.frames.push(frame);
+                offset = this.readImageBlock(gif, data, offset, frame);
+                gif.frames.push(frame);
                 return offset;
             }
 
             return -1;
         }
 
-        private _readImageBlock(data: DataView, offset: number, frame: Frame): number {
+        static readImageBlock(gif: Gif, data: DataView, offset: number, frame: Frame): number {
             frame.x = data.getUint16(++offset, true);
             offset += 2;
             frame.y = data.getUint16(offset, true);
@@ -385,19 +469,19 @@ module gifken {
             return offset;
         }
 
-        private _readApplicationExtensionBlock(data: DataView, offset: number): number {
+        static readApplicationExtensionBlock(gif: Gif, data: DataView, offset: number): number {
             offset += 2;
             if (data.getUint8(offset++) !== 0x0b) {
                 throw new Error("faild: _readApplicationExtensionBlock");
             }
             var app = String.fromCharCode(data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++), data.getUint8(offset++));
             if (app === "NETSCAPE2.0") {
-                this.isLoop = true;
+                gif.isLoop = true;
                 if (data.getUint8(offset++) !== 3) {
                     throw new Error("faild: _readApplicationExtensionBlock (NETSCAPE2.0)");
                 }
                 ++offset;
-                this.loopCount = data.getUint16(offset, true);
+                gif.loopCount = data.getUint16(offset, true);
                 offset += 2;
             }
             while (true) {
@@ -410,7 +494,7 @@ module gifken {
             return offset;
         }
 
-        private _readCommentExtensionBlock(data: DataView, offset: number): number {
+        static readCommentExtensionBlock(gif: Gif, data: DataView, offset: number): number {
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
@@ -422,7 +506,7 @@ module gifken {
             return offset;
         }
 
-        private _readGraphicControlExtensionBlock(data: DataView, offset: number, frame: Frame): number {
+        static readGraphicControlExtensionBlock(gif: Gif, data: DataView, offset: number, frame: Frame): number {
             var packed = data.getUint8(offset + 3);
             frame.transparentFlag = (packed & 1) === 1;
             frame.delayCentiSeconds = data.getUint16(offset + 4, true);
@@ -430,7 +514,7 @@ module gifken {
             return offset + 8;
         }
 
-        private _readPlainTextExtensionBlock(data: DataView, offset: number): number {
+        static readPlainTextExtensionBlock(gif: Gif, data: DataView, offset: number): number {
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
@@ -440,28 +524,6 @@ module gifken {
                 offset += blockSize;
             }
             return offset;
-        }
-    }
-
-    export class Frame {
-        public transparentFlag: boolean;
-        public delayCentiSeconds: number;
-        public transparentColorIndex: number;
-        public x: number;
-        public y: number;
-        public width: number;
-        public height: number;
-        public localTableSize: number;
-        public lzwCode: number;
-        public localColorTable: Uint8Array;
-        public compressedData: Uint8Array;
-        public pixelData: Uint8Array; // decompressed
-
-        constructor() {
-        }
-
-        public readData() {
-            this.pixelData = lzwDecode(this.lzwCode, this.compressedData, this.width * this.height);
         }
     }
 
