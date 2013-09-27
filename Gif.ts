@@ -27,10 +27,10 @@ module gifken {
         private _width: number;
         private _height: number;
         private _globalTableSize: number;
-        public colorResolution: number; // FIXME
+        public colorResolution: number; // not supported
         public sortFlag: boolean;
         public bgColorIndex: number;
-        public pixelAspectRatio: number;
+        public pixelAspectRatio: number; // not supported
         private _globalColorTable: Uint8Array;
         public frames: Frame[];
         public isLoop: boolean;
@@ -44,13 +44,12 @@ module gifken {
             this._standard = "GIF89a";
             this._width = 1;
             this._height = 1;
-            //this.colorResolution = 112; // FIXME
-            this.colorResolution = 0; // FIXME
+            this.colorResolution = 112; // not supported
             this.sortFlag = false;
             this.bgColorIndex = 1; // ?
             this.pixelAspectRatio = 0; // not supported
-            this.globalColorTable = ColorArrayToUint8Array([new Color(0, 0, 0), new Color(255, 255, 255)]);
-            this.frames = [Frame.init()];
+            this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
+            this.frames = [Frame.init(this)];
         }
 
         static parse(buffer: ArrayBuffer): Gif {
@@ -103,6 +102,7 @@ module gifken {
         public set globalColorTable(bytes: Uint8Array) {
             this._globalColorTable = bytes;
             this._globalTableSize = bytes.byteLength / 3;
+            this.bgColorIndex = bytes.byteLength - 1;
         }
 
         public writeToBlob(): Blob {
@@ -133,13 +133,13 @@ module gifken {
                 } while (size > 1);
                 packed |= count - 1;
             }
-            packed |= this.colorResolution; // FIXME
+            packed |= this.colorResolution; // not supported
             if (this.sortFlag) {
                 packed |= 8;
             }
             header.setUint8(10, packed);
             header.setUint8(11, this.bgColorIndex);
-            header.setUint8(12, this.pixelAspectRatio);
+            header.setUint8(12, this.pixelAspectRatio); // not supported
             output.push(header);
             if (this._globalTableSize > 0) {
                 output.push(this._globalColorTable);
@@ -238,10 +238,10 @@ module gifken {
                     gif.standard = this._standard;
                     gif.width = this._width;
                     gif.height = this._height;
-                    gif.colorResolution = this.colorResolution; // FIXME
+                    gif.colorResolution = this.colorResolution; // not supported
                     gif.sortFlag = this.sortFlag;
                     gif.bgColorIndex = this.bgColorIndex;
-                    gif.pixelAspectRatio = this.pixelAspectRatio;
+                    gif.pixelAspectRatio = this.pixelAspectRatio; // not supported
                     gif.globalColorTable = this._globalColorTable;
                     if (index !== 0 && frame.transparentFlag) {
                         if (frame.pixelData === undefined) {
@@ -267,10 +267,10 @@ module gifken {
                     gif.standard = this._standard;
                     gif.width = this._width;
                     gif.height = this._height;
-                    gif.colorResolution = this.colorResolution; // FIXME
+                    gif.colorResolution = this.colorResolution; // not supported
                     gif.sortFlag = this.sortFlag;
                     gif.bgColorIndex = this.bgColorIndex;
-                    gif.pixelAspectRatio = this.pixelAspectRatio;
+                    gif.pixelAspectRatio = this.pixelAspectRatio; // not supported
                     gif.globalColorTable = this._globalColorTable;
                     gif.frames = [frame];
                     res.push(gif);
@@ -303,10 +303,10 @@ module gifken {
             res.standard = this._standard;
             res.width = this._width;
             res.height = this._height;
-            res.colorResolution = this.colorResolution; // FIXME
+            res.colorResolution = this.colorResolution; // not supported
             res.sortFlag = this.sortFlag;
             res.bgColorIndex = this.bgColorIndex;
-            res.pixelAspectRatio = this.pixelAspectRatio;
+            res.pixelAspectRatio = this.pixelAspectRatio; // not supported
             res.globalColorTable = this._globalColorTable;
             res.frames = this.frames.reverse();
             res.isLoop = this.isLoop;
@@ -316,6 +316,7 @@ module gifken {
     }
 
     export class Frame {
+        private _parent: Gif;
         public transparentFlag: boolean;
         public delayCentiSeconds: number;
         public transparentColorIndex: number;
@@ -329,20 +330,21 @@ module gifken {
         public compressedData: Uint8Array;
         public pixelData: Uint8Array; // decompressed
 
-        constructor() {
+        constructor(gif: Gif) {
+            this._parent = gif;
         }
 
-        static init() {
-            var frame = new Frame();
+        static init(gif: Gif) {
+            var frame = new Frame(gif);
             frame.transparentFlag = false;
             frame.delayCentiSeconds = 0;
             frame.transparentColorIndex = 0;
             frame.x = 0;
             frame.y = 0;
-            frame.width = 1;
-            frame.height = 1;
+            frame.width = gif.width || 1;
+            frame.height = gif.height || 1;
             frame.localTableSize = 0;
-            frame.lzwCode = 2; // ?
+            frame.lzwCode = 4; // ?
             return frame;
         }
 
@@ -354,16 +356,26 @@ module gifken {
     export class Color {
         constructor(public r: number, public g: number, public b: number) {
         }
-    }
 
-    function ColorArrayToUint8Array(colors: Color[]): Uint8Array {
-        var numbers: number[] = [];
-        colors.forEach((color) => {
-            numbers.push(color.r);
-            numbers.push(color.g);
-            numbers.push(color.b);
-        });
-        return new Uint8Array(numbers);
+        static valueOf(color: string) {
+            // TODO
+        }
+
+        static createColorTable(colors: Color[]): Uint8Array {
+            var numbers: number[] = [];
+            for (var i = 1; i <= 8; ++i) {
+                var d = (i << 1) - colors.length;
+                for (var j = 0; j < d; ++j) {
+                    colors.push(new Color(255, 255, 255));
+                }
+            }
+            colors.forEach((color) => {
+                numbers.push(color.r);
+                numbers.push(color.g);
+                numbers.push(color.b);
+            });
+            return new Uint8Array(numbers);
+        }
     }
 
     class GifParser {
@@ -379,7 +391,7 @@ module gifken {
             } else {
                 tableSize = 1 << ((packed & 7) + 1);
             }
-            gif.colorResolution = packed & 112; // FIXME
+            gif.colorResolution = packed & 112;
             gif.sortFlag = (packed & 8) === 8 ? true : false;
             gif.bgColorIndex = data.getUint8(11);
             gif.pixelAspectRatio = data.getUint8(12);
@@ -399,7 +411,7 @@ module gifken {
                 // Extension block
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
-                    var frame = new Frame();
+                    var frame = new Frame(gif);
                     offset = this.readGraphicControlExtensionBlock(gif, data, offset, frame);
                     offset = this.readImageBlock(gif, data, offset, frame);
                     gif.frames.push(frame);
@@ -419,7 +431,7 @@ module gifken {
                 }
             }
             if (separator === 0x2c) {
-                var frame = new Frame();
+                var frame = new Frame(gif);
                 offset = this.readImageBlock(gif, data, offset, frame);
                 gif.frames.push(frame);
                 return offset;
