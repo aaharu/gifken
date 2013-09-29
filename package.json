@@ -4,7 +4,7 @@
   "description": "JavaScript GIF parser and maker",
   "main": "build/src/Gif.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt ci"
   },
   "repository": {
     "type": "git",

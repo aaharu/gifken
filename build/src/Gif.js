@@ -1,3 +1,18 @@
+/*
+Copyright (c) 2013 aaharu
+This software is released under the MIT License.
+https://raw.github.com/aaharu/gifken/master/LICENSE
+
+This product includes following softwares:
+* jsgif
+- Copyright (c) 2011 Shachaf Ben-Kiki
+- https://github.com/shachaf/jsgif
+- https://raw.github.com/shachaf/jsgif/master/LICENSE
+* GifWriter.js
+- Copyright (c) 2013 NOBUOKA Yu
+- https://github.com/nobuoka/GifWriter.js
+- https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
+*/
 var gifken;
 (function (gifken) {
     var Gif = (function () {
@@ -7,6 +22,7 @@ var gifken;
                 return;
             }
 
+            // default values
             this._standard = "GIF89a";
             this._width = 1;
             this._height = 1;
@@ -115,6 +131,7 @@ var gifken;
         Gif.prototype.writeToBlob = function () {
             var output = [];
 
+            // write header
             var header = new DataView(new ArrayBuffer(13));
             header.setUint8(0, 71);
             header.setUint8(1, 73);
@@ -174,6 +191,7 @@ var gifken;
                 output.push(appExt);
             }
 
+            // write image data
             this.frames.forEach(function (frame) {
                 var image = new DataView(new ArrayBuffer(18));
                 image.setUint8(0, 0x21);
@@ -356,6 +374,7 @@ var gifken;
             this.b = b;
         }
         Color.valueOf = function (color) {
+            // TODO
         };
 
         Color.createColorTable = function (colors) {
@@ -409,6 +428,7 @@ var gifken;
                 return -1;
             }
             if (separator === 0x21) {
+                // Extension block
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
                     var frame = new Frame(gif);
@@ -507,6 +527,7 @@ var gifken;
         };
 
         GifParser.readCommentExtensionBlock = function (gif, data, offset) {
+            // skip
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
@@ -527,6 +548,7 @@ var gifken;
         };
 
         GifParser.readPlainTextExtensionBlock = function (gif, data, offset) {
+            // skip
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
@@ -540,6 +562,9 @@ var gifken;
         return GifParser;
     })();
 
+    /*
+    ===begin jsgif===
+    */
     var lzwDecode = function (minCodeSize, data, len) {
         var pos = 0;
 
@@ -601,6 +626,7 @@ var gifken;
             offset += dict[code].length;
 
             if (dict.length === (1 << codeSize) && codeSize < 12) {
+                // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
                 codeSize++;
             }
         }
@@ -608,6 +634,12 @@ var gifken;
         return output;
     };
 
+    /*
+    ===end jsgif===
+    */
+    /*
+    ===begin GifWriter.js===
+    */
     var GifCompressedCodesToByteArrayConverter = (function () {
         function GifCompressedCodesToByteArrayConverter() {
             this.__out = [];
@@ -641,16 +673,31 @@ var gifken;
     })();
 
     function compressWithLZW(actualCodes, numBits) {
+        // `numBits` is LZW-initial code size, which indicates how many bits are needed
+        // to represents actual code.
         var bb = new GifCompressedCodesToByteArrayConverter();
 
+        // GIF spec says: A special Clear code is defined which resets all
+        // compression/decompression parameters and tables to a start-up state.
+        // The value of this code is 2**<code size>. For example if the code size
+        // indicated was 4 (image was 4 bits/pixel) the Clear code value would be 16
+        // (10000 binary). The Clear code can appear at any point in the image data
+        // stream and therefore requires the LZW algorithm to process succeeding
+        // codes as if a new data stream was starting. Encoders should
+        // output a Clear code as the first code of each image data stream.
         var clearCode = (1 << numBits);
 
+        // GIF spec says: An End of Information code is defined that explicitly
+        // indicates the end of the image data stream. LZW processing terminates
+        // when this code is encountered. It must be the last code output by the
+        // encoder for an image. The value of this code is <Clear code>+1.
         var endOfInfoCode = clearCode + 1;
 
         var nextCode;
         var curNumCodeBits;
         var dict;
         function resetAllParamsAndTablesToStartUpState() {
+            // GIF spec says: The first available compression code value is <Clear code>+2.
             nextCode = endOfInfoCode + 1;
             curNumCodeBits = numBits + 1;
             dict = Object.create(null);
