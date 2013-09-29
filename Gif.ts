@@ -28,16 +28,17 @@ module gifken {
         private _height: number;
         private _globalTableSize: number;
         public colorResolution: number; // not supported
-        public sortFlag: boolean;
+        public sortFlag: boolean; // not supported
         public bgColorIndex: number;
         public pixelAspectRatio: number; // not supported
         private _globalColorTable: Uint8Array;
         public frames: Frame[];
         public isLoop: boolean;
-        public loopCount: number;
+        private _loopCount: number;
 
-        constructor(donothing?: boolean) {
-            if (donothing) {
+        constructor(skipDefault?: boolean) {
+            this.frames = [];
+            if (skipDefault) {
                 return;
             }
             // default values
@@ -45,16 +46,14 @@ module gifken {
             this._width = 1;
             this._height = 1;
             this.colorResolution = 112; // not supported
-            this.sortFlag = false;
+            this.sortFlag = false; // not supported
             this.bgColorIndex = 1; // ?
             this.pixelAspectRatio = 0; // not supported
             this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
-            this.frames = [Frame.init(this)];
         }
 
         static parse(buffer: ArrayBuffer): Gif {
             var gif = new Gif(true);
-            gif.frames = [];
             var data = new DataView(buffer);
             var offset = GifParser.readHeader(gif, data);
             while (true) {
@@ -82,10 +81,11 @@ module gifken {
         }
 
         public set width(width: number) {
+            width = ~~width;
             if (width > 0xffff || width < 0) {
                 throw new RangeError("width range error: " + width);
             }
-            this._width = ~~width;
+            this._width = width
         }
 
         public get height(): number {
@@ -93,16 +93,35 @@ module gifken {
         }
 
         public set height(height: number) {
+            height = ~~height;
             if (height > 0xffff || height < 0) {
                 throw new RangeError("height range error: " + height);
             }
-            this._height = ~~height;
+            this._height = height;
         }
 
         public set globalColorTable(bytes: Uint8Array) {
             this._globalColorTable = bytes;
             this._globalTableSize = bytes.byteLength / 3;
-            this.bgColorIndex = bytes.byteLength - 1;
+            if (this.bgColorIndex === undefined) {
+                this.bgColorIndex = this._globalTableSize - 1;
+            }
+        }
+
+        public get globalTableSize(): number {
+            return this._globalTableSize;
+        }
+
+        public get loopCount(): number {
+            return this._loopCount;
+        }
+
+        public set loopCount(loopCount: number) {
+            loopCount = ~~loopCount;
+            if (loopCount > 0xffff || loopCount < 0) {
+                throw new RangeError("loopCount range error: " + loopCount);
+            }
+            this._loopCount = loopCount;
         }
 
         public writeToBlob(): Blob {
@@ -134,7 +153,7 @@ module gifken {
                 packed |= count - 1;
             }
             packed |= this.colorResolution; // not supported
-            if (this.sortFlag) {
+            if (this.sortFlag) { // not supported
                 packed |= 8;
             }
             header.setUint8(10, packed);
@@ -164,7 +183,7 @@ module gifken {
                 appExt.setUint8(13, 0x30); // 0
                 appExt.setUint8(14, 3);
                 appExt.setUint8(15, 1);
-                appExt.setUint16(16, this.loopCount, true);
+                appExt.setUint16(16, this._loopCount, true);
                 appExt.setUint8(18, 0);
                 output.push(appExt);
             }
@@ -239,7 +258,7 @@ module gifken {
                     gif.width = this._width;
                     gif.height = this._height;
                     gif.colorResolution = this.colorResolution; // not supported
-                    gif.sortFlag = this.sortFlag;
+                    gif.sortFlag = this.sortFlag; // not supported
                     gif.bgColorIndex = this.bgColorIndex;
                     gif.pixelAspectRatio = this.pixelAspectRatio; // not supported
                     gif.globalColorTable = this._globalColorTable;
@@ -268,7 +287,7 @@ module gifken {
                     gif.width = this._width;
                     gif.height = this._height;
                     gif.colorResolution = this.colorResolution; // not supported
-                    gif.sortFlag = this.sortFlag;
+                    gif.sortFlag = this.sortFlag; // not supported
                     gif.bgColorIndex = this.bgColorIndex;
                     gif.pixelAspectRatio = this.pixelAspectRatio; // not supported
                     gif.globalColorTable = this._globalColorTable;
@@ -304,13 +323,13 @@ module gifken {
             res.width = this._width;
             res.height = this._height;
             res.colorResolution = this.colorResolution; // not supported
-            res.sortFlag = this.sortFlag;
+            res.sortFlag = this.sortFlag; // not supported
             res.bgColorIndex = this.bgColorIndex;
             res.pixelAspectRatio = this.pixelAspectRatio; // not supported
             res.globalColorTable = this._globalColorTable;
             res.frames = this.frames.reverse();
             res.isLoop = this.isLoop;
-            res.loopCount = this.loopCount;
+            res.loopCount = this._loopCount;
             return res;
         }
     }
@@ -345,6 +364,7 @@ module gifken {
             frame.height = gif.height || 1;
             frame.localTableSize = 0;
             frame.lzwCode = 4; // ?
+            frame.pixelData = new Uint8Array(frame.width * frame.height);
             return frame;
         }
 
@@ -507,6 +527,7 @@ module gifken {
         }
 
         static readCommentExtensionBlock(gif: Gif, data: DataView, offset: number): number {
+            // skip
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
@@ -527,6 +548,7 @@ module gifken {
         }
 
         static readPlainTextExtensionBlock(gif: Gif, data: DataView, offset: number): number {
+            // skip
             offset += 2;
             while (true) {
                 var blockSize = data.getUint8(offset++);
