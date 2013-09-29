@@ -1,0 +1,22 @@
+{
+  "name": "gifken",
+  "version": "0.0.1",
+  "description": "JavaScript GIF parser and maker",
+  "main": "build/src/Gif.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aaharu/gifken.git"
+  },
+  "author": "aaharu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aaharu/gifken/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-typescript": "~0.2.4"
+  }
+}
