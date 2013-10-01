@@ -12,6 +12,8 @@ module.exports = (grunt) ->
                     target: "es5"
                     comments: true
         uglify:
+            options:
+                preserveComments: "some"
             my_target:
                 files:
                     "build/src/Gif.min.js": ["build/src/Gif.js"]
