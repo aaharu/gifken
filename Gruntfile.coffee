@@ -11,7 +11,12 @@ module.exports = (grunt) ->
                 options:
                     target: "es5"
                     comments: true
+        uglify:
+            my_target:
+                files:
+                    "build/src/Gif.min.js": ["build/src/Gif.js"]
 
     grunt.loadNpmTasks "grunt-typescript"
+    grunt.loadNpmTasks "grunt-contrib-uglify"
 
-    grunt.registerTask "ci", ["typescript"]
+    grunt.registerTask "ci", ["typescript", "uglify"]
