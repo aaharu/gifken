@@ -327,7 +327,6 @@ module gifken {
     }
 
     export class Frame {
-        private _parent: Gif;
         public transparentFlag: boolean;
         public delayCentiSeconds: number;
         public transparentColorIndex: number;
@@ -342,7 +341,6 @@ module gifken {
         public pixelData: Uint8Array; // decompressed
 
         constructor(gif: Gif) {
-            this._parent = gif;
         }
 
         static init(gif: Gif) {

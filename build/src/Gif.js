@@ -343,7 +343,6 @@ var gifken;
 
     var Frame = (function () {
         function Frame(gif) {
-            this._parent = gif;
         }
         Frame.init = function (gif) {
             var frame = new Frame(gif);
