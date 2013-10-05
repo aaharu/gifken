@@ -6,7 +6,7 @@ module.exports = (grunt) ->
     grunt.initConfig
         typescript:
             compile:
-                src: "src/Gif.ts"
+                src: "src/gifken.ts"
                 dest: "build"
                 options:
                     target: "es5"
@@ -16,7 +16,7 @@ module.exports = (grunt) ->
                 preserveComments: "some"
             my_target:
                 files:
-                    "build/src/Gif.min.js": ["build/src/Gif.js"]
+                    "build/src/gifken.min.js": ["build/src/gifken.js"]
 
     grunt.loadNpmTasks "grunt-typescript"
     grunt.loadNpmTasks "grunt-contrib-uglify"
