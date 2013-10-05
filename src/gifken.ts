@@ -385,16 +385,18 @@ module gifken {
 
             output.push(new Uint8Array([0x3b])); // trailer
 
-            var codes: number[] = [];
+            var str: string = "";
             output.forEach((buffer) => {
+                var codes: number[] = [];
                 if (buffer instanceof Uint8Array === false) {
                     buffer = new Uint8Array(buffer.buffer);
                 }
                 for (var i = 0, l = buffer.byteLength; i < l; ++i) {
                     codes.push(buffer[i]);
                 }
+                str += String.fromCharCode.apply(null, codes);
             });
-            return "data:image/gif;base64," + btoa(String.fromCharCode.apply(null, codes));
+            return "data:image/gif;base64," + btoa(str);
         }
 
         public split(orverwrite: boolean): Gif[] {
