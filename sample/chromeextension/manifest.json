@@ -1,0 +1,26 @@
+{
+    "manifest_version": 2,
+
+    "name": "agif",
+    "description": "split or playback Animated GIF image.",
+    "version": "0.0.1",
+
+    "permissions": [
+        "contextMenus",
+        "tabs",
+        "http://*/*",
+        "https://*/*"
+    ],
+
+    "background": {
+        "scripts": ["background/gifken.min.js", "background/contextMenus.js"],
+        "persistent": false
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*"],
+            "js": ["content_scripts/agif.js"]
+        }
+    ]
+}

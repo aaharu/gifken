@@ -3,3 +3,6 @@ Thumbs.db
 Desktop.ini
 
 node_modules/
+
+*.pem
+*.crx
