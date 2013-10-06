@@ -21,12 +21,11 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
                         img.src = gifObj.playback(true).writeToDataUrl();
                         html.appendChild(img);
                     }
-                    var result = html.innerHTML;
 
                     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                         chrome.tabs.sendMessage(tabs[0].id, {
                             type: info.menuItemId,
-                            result: result
+                            result: html.innerHTML
                         });
                     });
                 };
@@ -34,8 +33,6 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             }
         };
         xhr.send();
-    } else {
-        alert("!");
     }
 });
 
