@@ -8,16 +8,17 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             if (blob.type === "image/gif") {
                 var fileReader = new FileReader();
                 fileReader.onload = function() {
-                    var gifObj = gifken.Gif.parse(this.result);
-                    var html = document.createElement("div");
+                    var gifObj = gifken.Gif.parse(this.result),
+                        html = document.createElement("div"),
+                        img;
                     if (info.menuItemId === "split") {
                         gifObj.split(true).forEach(function(i) {
-                            var img = new Image();
+                            img = new Image();
                             img.src = i.writeToDataUrl();
                             html.appendChild(img);
                         });
                     } else {
-                        var img = new Image();
+                        img = new Image();
                         img.src = gifObj.playback(true).writeToDataUrl();
                         html.appendChild(img);
                     }

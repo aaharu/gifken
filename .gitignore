@@ -4,5 +4,6 @@ Desktop.ini
 
 node_modules/
 
+tscommand.tmp.txt
 *.pem
 *.crx

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "JavaScript GIF parser and maker",
   "main": "build/src/Gif.js",
+  "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
     "test": "grunt ci"
   },
@@ -17,7 +18,9 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-typescript": "~0.2.4",
-    "grunt-contrib-uglify": "~0.2.4"
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-ts": "latest",
+    "grunt-contrib-yuidoc": "~0.5.0"
   }
 }
