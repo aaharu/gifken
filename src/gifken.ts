@@ -19,12 +19,34 @@ module gifken {
         /**
          * GIF Header block.
          *
+         * @private
          * @property _standard
          * @type {string}
          */
         private _standard: string;
+        /**
+         * GIF image width.
+         *
+         * @private
+         * @property _width
+         * @type {number}
+         */
         private _width: number;
+        /**
+         * GIF image height.
+         *
+         * @private
+         * @property _height
+         * @type {number}
+         */
         private _height: number;
+        /**
+         * The number of color in the Global Color Table.
+         *
+         * @private
+         * @property _globalTableSize
+         * @type {number}
+         */
         private _globalTableSize: number;
         public colorResolution: number; // not supported
         public sortFlag: boolean; // not supported
@@ -33,6 +55,14 @@ module gifken {
         private _globalColorTable: Uint8Array;
         public frames: Frame[];
         public isLoop: boolean;
+        /**
+         * The number of animation iteration count.
+         * if this is 0, it is infinite.
+         *
+         * @private
+         * @property _loopCount
+         * @type {number}
+         */
         private _loopCount: number;
 
         /**
@@ -40,7 +70,7 @@ module gifken {
          *
          * @class Gif
          * @constructor
-         * @param {boolean} skipDefault
+         * @param {boolean} [options] skipDefault
          */
         constructor(skipDefault?: boolean) {
             this.frames = [];
@@ -58,6 +88,14 @@ module gifken {
             this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
         }
 
+        /**
+         * Parse Gif image from ArrayBuffer.
+         *
+         * @static
+         * @method parse
+         * @param {ArrayBuffer} buffer
+         * @return {Gif} parsed gif object
+         */
         static parse(buffer: ArrayBuffer): Gif {
             var gif = new Gif(true);
             var data = new DataView(buffer);

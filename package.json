@@ -2,7 +2,7 @@
   "name": "gifken",
   "version": "0.0.1",
   "description": "JavaScript GIF parser and maker",
-  "main": "build/src/Gif.js",
+  "main": "build/Gif.js",
   "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
     "test": "grunt ci"
