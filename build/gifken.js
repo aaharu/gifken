@@ -1,5 +1,5 @@
 /*!
-gifken v0.0.1
+gifken v0.0.1-alpha
 Copyright (c) 2013 aaharu
 This software is released under the MIT License.
 https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -22,8 +22,8 @@ var gifken;
         *
         * @class Gif
         * @constructor
-        * @param {boolean} skipDefault
-        */
+        * @param {boolean} [options] skipDefault
+        **/
         function Gif(skipDefault) {
             this.frames = [];
             if (skipDefault) {
@@ -31,7 +31,7 @@ var gifken;
             }
 
             // default values
-            this._standard = "GIF89a";
+            this._version = Version.GIF89a;
             this._width = 1;
             this._height = 1;
             this.colorResolution = 112;
@@ -40,7 +40,15 @@ var gifken;
             this.pixelAspectRatio = 0;
             this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
         }
-        Gif.parse = function (buffer) {
+        Gif.parse = /**
+        * Parse Gif image from ArrayBuffer.
+        *
+        * @static
+        * @method parse
+        * @param {ArrayBuffer} buffer
+        * @return {Gif} parsed gif object
+        **/
+        function (buffer) {
             var gif = new Gif(true);
             var data = new DataView(buffer);
             var offset = GifParser.readHeader(gif, data);
@@ -53,15 +61,16 @@ var gifken;
             return gif;
         };
 
-        Object.defineProperty(Gif.prototype, "standard", {
+        Gif.prototype.versionName = function () {
+            return Version[this._version];
+        };
+
+        Object.defineProperty(Gif.prototype, "version", {
             get: function () {
-                return this._standard;
+                return this._version;
             },
-            set: function (std) {
-                if (std !== "GIF89a" && std !== "GIF87a") {
-                    throw new Error("failed gif format");
-                }
-                this._standard = std;
+            set: function (v) {
+                this._version = v;
             },
             enumerable: true,
             configurable: true
@@ -140,275 +149,189 @@ var gifken;
         });
 
 
+        Gif._writeToArrayBuffer = /**
+        * Convert Gif to Uint8Array[].
+        *
+        * @private
+        * @static
+        * @method _writeToArrayBuffer
+        * @param {Gif} gif
+        * @return {Uint8Array[]} array of Uint8Array
+        **/
+        function (gif) {
+            var output = [];
+
+            // write header
+            var header = new DataView(new ArrayBuffer(13));
+            header.setUint8(0, 71);
+            header.setUint8(1, 73);
+            header.setUint8(2, 70);
+            header.setUint8(3, 56);
+            if (gif.version === Version.GIF89a) {
+                header.setUint8(4, 57);
+            } else {
+                header.setUint8(4, 55);
+            }
+            header.setUint8(5, 97);
+            header.setUint16(6, gif.width, true);
+            header.setUint16(8, gif.height, true);
+            var packed = 0;
+            var size = gif.globalTableSize;
+            if (size > 0) {
+                packed |= 128;
+                var count = 0;
+                do {
+                    size = size >> 1;
+                    ++count;
+                } while(size > 1);
+                packed |= count - 1;
+            }
+            packed |= gif.colorResolution;
+            if (gif.sortFlag) {
+                packed |= 8;
+            }
+            header.setUint8(10, packed);
+            header.setUint8(11, gif.bgColorIndex);
+            header.setUint8(12, gif.pixelAspectRatio);
+            output.push(new Uint8Array(header.buffer));
+            if (gif.globalTableSize > 0) {
+                output.push(gif.globalColorTable);
+            }
+
+            if (gif.isLoop) {
+                var appExt = new DataView(new ArrayBuffer(19));
+                appExt.setUint8(0, 0x21);
+                appExt.setUint8(1, 0xff);
+                appExt.setUint8(2, 0x0b);
+                appExt.setUint8(3, 0x4e);
+                appExt.setUint8(4, 0x45);
+                appExt.setUint8(5, 0x54);
+                appExt.setUint8(6, 0x53);
+                appExt.setUint8(7, 0x43);
+                appExt.setUint8(8, 0x41);
+                appExt.setUint8(9, 0x50);
+                appExt.setUint8(10, 0x45);
+                appExt.setUint8(11, 0x32);
+                appExt.setUint8(12, 0x2e);
+                appExt.setUint8(13, 0x30);
+                appExt.setUint8(14, 3);
+                appExt.setUint8(15, 1);
+                appExt.setUint16(16, gif.loopCount, true);
+                appExt.setUint8(18, 0);
+                output.push(new Uint8Array(appExt.buffer));
+            }
+
+            // write image data
+            gif.frames.forEach(function (frame) {
+                var image = new DataView(new ArrayBuffer(18));
+                image.setUint8(0, 0x21);
+                image.setUint8(1, 0xf9);
+                image.setUint8(2, 0x04);
+                if (frame.transparentFlag) {
+                    image.setUint8(3, 1);
+                } else {
+                    image.setUint8(3, 0);
+                }
+                image.setUint16(4, frame.delayCentiSeconds, true);
+                image.setUint8(6, frame.transparentColorIndex);
+                image.setUint8(7, 0);
+
+                image.setUint8(8, 0x2c);
+                image.setUint16(9, frame.x, true);
+                image.setUint16(11, frame.y, true);
+                image.setUint16(13, frame.width, true);
+                image.setUint16(15, frame.height, true);
+                if (frame.localTableSize > 0) {
+                    var count = 0;
+                    var size = frame.localTableSize;
+                    do {
+                        size = size >> 1;
+                        ++count;
+                    } while(size > 1);
+                    image.setUint8(17, 128 | (count - 1));
+                } else {
+                    image.setUint8(17, 0);
+                }
+                output.push(new Uint8Array(image.buffer));
+                if (frame.localTableSize > 0) {
+                    output.push(frame.localColorTable);
+                }
+                output.push(new Uint8Array([frame.lzwCode]));
+                if (frame.compressedData === undefined && frame.pixelData === undefined) {
+                    throw new Error("no image data");
+                }
+                var idx = 0, compressedBytes = frame.compressedData;
+                if (compressedBytes instanceof Array) {
+                    compressedBytes = new Uint8Array(compressedBytes);
+                } else {
+                    compressedBytes = compressedBytes || new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
+                }
+                var l = compressedBytes.length;
+                while (true) {
+                    if (l > idx + 255) {
+                        output.push(new Uint8Array([255]));
+                        output.push(compressedBytes.subarray(idx, idx + 255));
+                        idx += 255;
+                        continue;
+                    }
+                    var bytes = compressedBytes.subarray(idx);
+                    output.push(new Uint8Array([bytes.byteLength]));
+                    output.push(bytes);
+                    break;
+                }
+                output.push(new Uint8Array([0]));
+            });
+
+            output.push(new Uint8Array([0x3b]));
+            return output;
+        };
+
+        /**
+        * Return Blob object.
+        *
+        * @method writeToBlob
+        * @return {Blob} BLOB
+        **/
         Gif.prototype.writeToBlob = function () {
             return Gif.writeToBlob(this);
         };
 
-        Gif.writeToBlob = function (gif) {
-            var output = [];
-
-            // write header
-            var header = new DataView(new ArrayBuffer(13));
-            header.setUint8(0, 71);
-            header.setUint8(1, 73);
-            header.setUint8(2, 70);
-            header.setUint8(3, 56);
-            if (gif.standard === "GIF89a") {
-                header.setUint8(4, 57);
-            } else {
-                header.setUint8(4, 55);
-            }
-            header.setUint8(5, 97);
-            header.setUint16(6, gif.width, true);
-            header.setUint16(8, gif.height, true);
-            var packed = 0;
-            var size = gif.globalTableSize;
-            if (size > 0) {
-                packed |= 128;
-                var count = 0;
-                do {
-                    size = size >> 1;
-                    ++count;
-                } while(size > 1);
-                packed |= count - 1;
-            }
-            packed |= gif.colorResolution;
-            if (gif.sortFlag) {
-                packed |= 8;
-            }
-            header.setUint8(10, packed);
-            header.setUint8(11, gif.bgColorIndex);
-            header.setUint8(12, gif.pixelAspectRatio);
-            output.push(header);
-            if (gif.globalTableSize > 0) {
-                output.push(gif.globalColorTable);
-            }
-
-            if (gif.isLoop) {
-                var appExt = new DataView(new ArrayBuffer(19));
-                appExt.setUint8(0, 0x21);
-                appExt.setUint8(1, 0xff);
-                appExt.setUint8(2, 0x0b);
-                appExt.setUint8(3, 0x4e);
-                appExt.setUint8(4, 0x45);
-                appExt.setUint8(5, 0x54);
-                appExt.setUint8(6, 0x53);
-                appExt.setUint8(7, 0x43);
-                appExt.setUint8(8, 0x41);
-                appExt.setUint8(9, 0x50);
-                appExt.setUint8(10, 0x45);
-                appExt.setUint8(11, 0x32);
-                appExt.setUint8(12, 0x2e);
-                appExt.setUint8(13, 0x30);
-                appExt.setUint8(14, 3);
-                appExt.setUint8(15, 1);
-                appExt.setUint16(16, gif.loopCount, true);
-                appExt.setUint8(18, 0);
-                output.push(appExt);
-            }
-
-            // write image data
-            gif.frames.forEach(function (frame) {
-                var image = new DataView(new ArrayBuffer(18));
-                image.setUint8(0, 0x21);
-                image.setUint8(1, 0xf9);
-                image.setUint8(2, 0x04);
-                if (frame.transparentFlag) {
-                    image.setUint8(3, 1);
-                } else {
-                    image.setUint8(3, 0);
-                }
-                image.setUint16(4, frame.delayCentiSeconds, true);
-                image.setUint8(6, frame.transparentColorIndex);
-                image.setUint8(7, 0);
-
-                image.setUint8(8, 0x2c);
-                image.setUint16(9, frame.x, true);
-                image.setUint16(11, frame.y, true);
-                image.setUint16(13, frame.width, true);
-                image.setUint16(15, frame.height, true);
-                if (frame.localTableSize > 0) {
-                    var count = 0;
-                    var size = frame.localTableSize;
-                    do {
-                        size = size >> 1;
-                        ++count;
-                    } while(size > 1);
-                    image.setUint8(17, 128 | (count - 1));
-                } else {
-                    image.setUint8(17, 0);
-                }
-                output.push(image);
-                if (frame.localTableSize > 0) {
-                    output.push(frame.localColorTable);
-                }
-                output.push(new Uint8Array([frame.lzwCode]));
-                if (frame.compressedData === undefined && frame.pixelData === undefined) {
-                    throw new Error("no image data");
-                }
-                var idx = 0, compressedBytes = frame.compressedData;
-                if (compressedBytes instanceof Array) {
-                    compressedBytes = new Uint8Array(compressedBytes);
-                } else {
-                    compressedBytes = compressedBytes || new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
-                }
-                var l = compressedBytes.length;
-                while (true) {
-                    if (l > idx + 255) {
-                        output.push(new Uint8Array([255]));
-                        output.push(compressedBytes.subarray(idx, idx + 255));
-                        idx += 255;
-                        continue;
-                    }
-                    var bytes = compressedBytes.subarray(idx);
-                    output.push(new Uint8Array([bytes.byteLength]));
-                    output.push(bytes);
-                    break;
-                }
-                output.push(new Uint8Array([0]));
-            });
-
-            output.push(new Uint8Array([0x3b]));
-            return new Blob(output, { "type": "image/gif" });
+        Gif.writeToBlob = /**
+        * Convert Gif to Blob.
+        *
+        * @static
+        * @method writeToBlob
+        * @param {Gif} gif
+        * @return {Blob} BLOB
+        **/
+        function (gif) {
+            return new Blob(Gif._writeToArrayBuffer(gif), { "type": "image/gif" });
         };
 
+        /**
+        * Return Data-URL string.
+        *
+        * @method writeToDataUrl
+        * @return {string} Data-URL string
+        **/
         Gif.prototype.writeToDataUrl = function () {
             return Gif.writeToDataUrl(this);
         };
 
-        Gif.writeToDataUrl = function (gif) {
-            // TODO
-            var output = [];
-
-            // write header
-            var header = new DataView(new ArrayBuffer(13));
-            header.setUint8(0, 71);
-            header.setUint8(1, 73);
-            header.setUint8(2, 70);
-            header.setUint8(3, 56);
-            if (gif.standard === "GIF89a") {
-                header.setUint8(4, 57);
-            } else {
-                header.setUint8(4, 55);
-            }
-            header.setUint8(5, 97);
-            header.setUint16(6, gif.width, true);
-            header.setUint16(8, gif.height, true);
-            var packed = 0;
-            var size = gif.globalTableSize;
-            if (size > 0) {
-                packed |= 128;
-                var count = 0;
-                do {
-                    size = size >> 1;
-                    ++count;
-                } while(size > 1);
-                packed |= count - 1;
-            }
-            packed |= gif.colorResolution;
-            if (gif.sortFlag) {
-                packed |= 8;
-            }
-            header.setUint8(10, packed);
-            header.setUint8(11, gif.bgColorIndex);
-            header.setUint8(12, gif.pixelAspectRatio);
-            output.push(header);
-            if (gif.globalTableSize > 0) {
-                output.push(gif.globalColorTable);
-            }
-
-            if (gif.isLoop) {
-                var appExt = new DataView(new ArrayBuffer(19));
-                appExt.setUint8(0, 0x21);
-                appExt.setUint8(1, 0xff);
-                appExt.setUint8(2, 0x0b);
-                appExt.setUint8(3, 0x4e);
-                appExt.setUint8(4, 0x45);
-                appExt.setUint8(5, 0x54);
-                appExt.setUint8(6, 0x53);
-                appExt.setUint8(7, 0x43);
-                appExt.setUint8(8, 0x41);
-                appExt.setUint8(9, 0x50);
-                appExt.setUint8(10, 0x45);
-                appExt.setUint8(11, 0x32);
-                appExt.setUint8(12, 0x2e);
-                appExt.setUint8(13, 0x30);
-                appExt.setUint8(14, 3);
-                appExt.setUint8(15, 1);
-                appExt.setUint16(16, gif.loopCount, true);
-                appExt.setUint8(18, 0);
-                output.push(appExt);
-            }
-
-            // write image data
-            gif.frames.forEach(function (frame) {
-                var image = new DataView(new ArrayBuffer(18));
-                image.setUint8(0, 0x21);
-                image.setUint8(1, 0xf9);
-                image.setUint8(2, 0x04);
-                if (frame.transparentFlag) {
-                    image.setUint8(3, 1);
-                } else {
-                    image.setUint8(3, 0);
-                }
-                image.setUint16(4, frame.delayCentiSeconds, true);
-                image.setUint8(6, frame.transparentColorIndex);
-                image.setUint8(7, 0);
-
-                image.setUint8(8, 0x2c);
-                image.setUint16(9, frame.x, true);
-                image.setUint16(11, frame.y, true);
-                image.setUint16(13, frame.width, true);
-                image.setUint16(15, frame.height, true);
-                if (frame.localTableSize > 0) {
-                    var count = 0;
-                    var size = frame.localTableSize;
-                    do {
-                        size = size >> 1;
-                        ++count;
-                    } while(size > 1);
-                    image.setUint8(17, 128 | (count - 1));
-                } else {
-                    image.setUint8(17, 0);
-                }
-                output.push(image);
-                if (frame.localTableSize > 0) {
-                    output.push(frame.localColorTable);
-                }
-                output.push(new Uint8Array([frame.lzwCode]));
-                if (frame.compressedData === undefined && frame.pixelData === undefined) {
-                    throw new Error("no image data");
-                }
-                var idx = 0, compressedBytes = frame.compressedData;
-                if (compressedBytes instanceof Array) {
-                    compressedBytes = new Uint8Array(compressedBytes);
-                } else {
-                    compressedBytes = compressedBytes || new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
-                }
-                var l = compressedBytes.length;
-                while (true) {
-                    if (l > idx + 255) {
-                        output.push(new Uint8Array([255]));
-                        output.push(compressedBytes.subarray(idx, idx + 255));
-                        idx += 255;
-                        continue;
-                    }
-                    var bytes = compressedBytes.subarray(idx);
-                    output.push(new Uint8Array([bytes.byteLength]));
-                    output.push(bytes);
-                    break;
-                }
-                output.push(new Uint8Array([0]));
-            });
-
-            output.push(new Uint8Array([0x3b]));
+        Gif.writeToDataUrl = /**
+        * Convert Gif to Data-URL string.
+        *
+        * @static
+        * @method writeToDataUrl
+        * @param {Gif} gif
+        * @return {string} Data-URL string
+        **/
+        function (gif) {
+            var output = Gif._writeToArrayBuffer(gif);
 
             var str = "";
             output.forEach(function (buffer) {
                 var codes = [];
-                if (buffer instanceof Uint8Array === false) {
-                    buffer = new Uint8Array(buffer.buffer);
-                }
                 for (var i = 0, l = buffer.byteLength; i < l; ++i) {
                     codes.push(buffer[i]);
                 }
@@ -417,13 +340,20 @@ var gifken;
             return "data:image/gif;base64," + btoa(str);
         };
 
+        /**
+        * Split the animated GIF image.
+        *
+        * @method split
+        * @param {boolean} orverwrite
+        * @return {Gif[]} array of Gif object
+        **/
         Gif.prototype.split = function (orverwrite) {
             var _this = this;
             var res = [];
             if (orverwrite) {
                 this.frames.forEach(function (frame, index) {
                     var gif = new Gif();
-                    gif.standard = _this._standard;
+                    gif.version = _this._version;
                     gif.width = _this._width;
                     gif.height = _this._height;
                     gif.colorResolution = _this.colorResolution;
@@ -457,7 +387,7 @@ var gifken;
             } else {
                 this.frames.forEach(function (frame) {
                     var gif = new Gif();
-                    gif.standard = _this._standard;
+                    gif.version = _this._version;
                     gif.width = _this._width;
                     gif.height = _this._height;
                     gif.colorResolution = _this.colorResolution;
@@ -472,6 +402,13 @@ var gifken;
             return res;
         };
 
+        /**
+        * Playback the animated GIF image.
+        *
+        * @method playback
+        * @param {boolean} orverwrite
+        * @return {Gif} Gif object
+        **/
         Gif.prototype.playback = function (overwrite) {
             var _this = this;
             var res = new Gif();
@@ -499,7 +436,7 @@ var gifken;
                     }
                 });
             }
-            res.standard = this._standard;
+            res.version = this._version;
             res.width = this._width;
             res.height = this._height;
             res.colorResolution = this.colorResolution;
@@ -517,6 +454,13 @@ var gifken;
     gifken.Gif = Gif;
 
     var Frame = (function () {
+        /**
+        * Frame
+        *
+        * @class Frame
+        * @constructor
+        * @param {Gif} gif
+        **/
         function Frame(gif) {
         }
         Frame.init = function (gif) {
@@ -542,6 +486,15 @@ var gifken;
     gifken.Frame = Frame;
 
     var Color = (function () {
+        /**
+        * Color
+        *
+        * @class Color
+        * @constructor
+        * @param {number} r
+        * @param {number} g
+        * @param {number} b
+        **/
         function Color(r, g, b) {
             this.r = r;
             this.g = g;
@@ -570,11 +523,17 @@ var gifken;
     })();
     gifken.Color = Color;
 
+    (function (Version) {
+        Version[Version["GIF89a"] = 0] = "GIF89a";
+        Version[Version["GIF87a"] = 1] = "GIF87a";
+    })(gifken.Version || (gifken.Version = {}));
+    var Version = gifken.Version;
+
     var GifParser = (function () {
         function GifParser() {
         }
         GifParser.readHeader = function (gif, data) {
-            gif.standard = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5));
+            gif.version = Version[String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5))];
             gif.width = data.getUint16(6, true);
             gif.height = data.getUint16(8, true);
             var packed = data.getUint8(10);
