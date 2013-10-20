@@ -76,6 +76,8 @@ module gifken {
          * @type {number}
          **/
         private _loopCount: number;
+        public frameIndex1: number = 0;
+        public frameIndex2: number = 0;
 
         /**
          * Gif
@@ -602,10 +604,15 @@ module gifken {
                 // Extension block
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
-                    var frame = new Frame(gif);
-                    offset = this.readGraphicControlExtensionBlock(gif, data, offset, frame);
-                    offset = this.readImageBlock(gif, data, offset, frame);
-                    gif.frames.push(frame);
+                    if (gif.frames[gif.frameIndex1] === undefined) {
+                        frame = new Frame(gif);
+                        offset = this.readGraphicControlExtensionBlock(frame, data, offset);
+                        gif.frames.push(frame);
+                    } else {
+                        frame = gif.frames[gif.frameIndex1];
+                        offset = this.readGraphicControlExtensionBlock(frame, data, offset);
+                    }
+                    gif.frameIndex1 += 1;
                     return offset;
                 }
                 if (label === 0xfe) {
@@ -622,16 +629,23 @@ module gifken {
                 }
             }
             if (separator === 0x2c) {
-                var frame = new Frame(gif);
-                offset = this.readImageBlock(gif, data, offset, frame);
-                gif.frames.push(frame);
+                var frame: Frame;
+                if (gif.frames[gif.frameIndex2] === undefined) {
+                    frame = new Frame(gif);
+                    offset = this.readImageBlock(frame, data, offset);
+                    gif.frames.push(frame);
+                } else {
+                    frame = gif.frames[gif.frameIndex2];
+                    offset = this.readImageBlock(frame, data, offset);
+                }
+                gif.frameIndex2 += 1;
                 return offset;
             }
 
             return -1;
         }
 
-        static readImageBlock(gif: Gif, data: DataView, offset: number, frame: Frame): number {
+        static readImageBlock(frame: Frame, data: DataView, offset: number): number {
             frame.x = data.getUint16(++offset, true);
             offset += 2;
             frame.y = data.getUint16(offset, true);
@@ -710,7 +724,7 @@ module gifken {
             return offset;
         }
 
-        static readGraphicControlExtensionBlock(gif: Gif, data: DataView, offset: number, frame: Frame): number {
+        static readGraphicControlExtensionBlock(frame: Frame, data: DataView, offset: number): number {
             var packed = data.getUint8(offset + 3);
             frame.transparentFlag = (packed & 1) === 1;
             frame.delayCentiSeconds = data.getUint16(offset + 4, true);

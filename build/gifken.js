@@ -25,6 +25,8 @@ var gifken;
         * @param {boolean} [options] skipDefault
         **/
         function Gif(skipDefault) {
+            this.frameIndex1 = 0;
+            this.frameIndex2 = 0;
             this.frames = [];
             if (skipDefault) {
                 return;
@@ -564,10 +566,15 @@ var gifken;
                 // Extension block
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
-                    var frame = new Frame(gif);
-                    offset = this.readGraphicControlExtensionBlock(gif, data, offset, frame);
-                    offset = this.readImageBlock(gif, data, offset, frame);
-                    gif.frames.push(frame);
+                    if (gif.frames[gif.frameIndex1] === undefined) {
+                        frame = new Frame(gif);
+                        offset = this.readGraphicControlExtensionBlock(frame, data, offset);
+                        gif.frames.push(frame);
+                    } else {
+                        frame = gif.frames[gif.frameIndex1];
+                        offset = this.readGraphicControlExtensionBlock(frame, data, offset);
+                    }
+                    gif.frameIndex1 += 1;
                     return offset;
                 }
                 if (label === 0xfe) {
@@ -584,16 +591,23 @@ var gifken;
                 }
             }
             if (separator === 0x2c) {
-                var frame = new Frame(gif);
-                offset = this.readImageBlock(gif, data, offset, frame);
-                gif.frames.push(frame);
+                var frame;
+                if (gif.frames[gif.frameIndex2] === undefined) {
+                    frame = new Frame(gif);
+                    offset = this.readImageBlock(frame, data, offset);
+                    gif.frames.push(frame);
+                } else {
+                    frame = gif.frames[gif.frameIndex2];
+                    offset = this.readImageBlock(frame, data, offset);
+                }
+                gif.frameIndex2 += 1;
                 return offset;
             }
 
             return -1;
         };
 
-        GifParser.readImageBlock = function (gif, data, offset, frame) {
+        GifParser.readImageBlock = function (frame, data, offset) {
             frame.x = data.getUint16(++offset, true);
             offset += 2;
             frame.y = data.getUint16(offset, true);
@@ -672,7 +686,7 @@ var gifken;
             return offset;
         };
 
-        GifParser.readGraphicControlExtensionBlock = function (gif, data, offset, frame) {
+        GifParser.readGraphicControlExtensionBlock = function (frame, data, offset) {
             var packed = data.getUint8(offset + 3);
             frame.transparentFlag = (packed & 1) === 1;
             frame.delayCentiSeconds = data.getUint16(offset + 4, true);
