@@ -16,11 +16,15 @@
   "bugs": {
     "url": "https://github.com/aaharu/gifken/issues"
   },
+  "engines": {
+      "node": ">=0.8.0"
+  },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-uglify": "~0.2.4",
-    "grunt-contrib-jshint": "~0.6.4",
-    "grunt-ts": "latest",
-    "grunt-contrib-yuidoc": "~0.5.0"
+    "grunt-contrib-jshint": "~0.7.0",
+    "grunt-ts": "~1.4.0",
+    "grunt-contrib-yuidoc": "~0.5.0",
+    "grunt-contrib-jasmine": "~0.5.2"
   }
 }

@@ -35,11 +35,17 @@ module.exports = (grunt) ->
         watch:
             files: ["src/gifken.ts"]
             tasks: "ci"
+        jasmine:
+            task:
+                src: "build/gifken.js"
+                options:
+                    specs: "test/*Spec.js"
 
     grunt.loadNpmTasks "grunt-ts"
     grunt.loadNpmTasks "grunt-contrib-uglify"
     grunt.loadNpmTasks "grunt-contrib-jshint"
     grunt.loadNpmTasks "grunt-contrib-yuidoc"
+    grunt.loadNpmTasks "grunt-contrib-jasmine"
 
-    grunt.registerTask "ci", ["ts:build", "jshint", "uglify"]
+    grunt.registerTask "ci", ["ts:build", "jshint", "uglify", "jasmine:task"]
     grunt.registerTask "default", ["ci", "yuidoc"]
