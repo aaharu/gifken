@@ -8,7 +8,7 @@ module.exports = (grunt) ->
         uglify:
             options:
                 preserveComments: "some"
-            my_target:
+            compile:
                 files:
                     "build/gifken.min.js": ["build/gifken.js"]
         jshint:
@@ -19,8 +19,8 @@ module.exports = (grunt) ->
                 outDir: "build"
                 options:
                     target: "es5"
-                    comments: true
-                    sourcemap: false
+                    removeComments: false
+                    sourceMap: false
                     module: "commonjs"
         yuidoc:
             compile:

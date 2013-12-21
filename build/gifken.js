@@ -3,7 +3,6 @@ gifken v0.0.1-alpha
 Copyright (c) 2013 aaharu
 This software is released under the MIT License.
 https://raw.github.com/aaharu/gifken/master/LICENSE
-
 This product includes following softwares:
 * jsgif
 - Copyright (c) 2011 Shachaf Ben-Kiki
@@ -33,16 +32,16 @@ var gifken;
             }
 
             // default values
-            this._version = Version.GIF89a;
+            this._version = 0 /* GIF89a */;
             this._width = 1;
             this._height = 1;
-            this.colorResolution = 112;
-            this.sortFlag = false;
-            this.bgColorIndex = 1;
-            this.pixelAspectRatio = 0;
+            this.colorResolution = 112; // not supported
+            this.sortFlag = false; // not supported
+            this.bgColorIndex = 1; // ?
+            this.pixelAspectRatio = 0; // not supported
             this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
         }
-        Gif.parse = /**
+        /**
         * Parse Gif image from ArrayBuffer.
         *
         * @static
@@ -50,7 +49,7 @@ var gifken;
         * @param {ArrayBuffer} buffer
         * @return {Gif} parsed gif object
         **/
-        function (buffer) {
+        Gif.parse = function (buffer) {
             var gif = new Gif(true);
             var data = new DataView(buffer);
             var offset = GifParser.readHeader(gif, data);
@@ -151,7 +150,7 @@ var gifken;
         });
 
 
-        Gif._writeToArrayBuffer = /**
+        /**
         * Convert Gif to Uint8Array[].
         *
         * @private
@@ -160,21 +159,21 @@ var gifken;
         * @param {Gif} gif
         * @return {Uint8Array[]} array of Uint8Array
         **/
-        function (gif) {
+        Gif._writeToArrayBuffer = function (gif) {
             var output = [];
 
             // write header
             var header = new DataView(new ArrayBuffer(13));
-            header.setUint8(0, 71);
-            header.setUint8(1, 73);
-            header.setUint8(2, 70);
-            header.setUint8(3, 56);
-            if (gif.version === Version.GIF89a) {
-                header.setUint8(4, 57);
+            header.setUint8(0, 71); // G
+            header.setUint8(1, 73); // I
+            header.setUint8(2, 70); // F
+            header.setUint8(3, 56); // 8
+            if (gif.version === 0 /* GIF89a */) {
+                header.setUint8(4, 57); // 9
             } else {
-                header.setUint8(4, 55);
+                header.setUint8(4, 55); // 7
             }
-            header.setUint8(5, 97);
+            header.setUint8(5, 97); // a
             header.setUint16(6, gif.width, true);
             header.setUint16(8, gif.height, true);
             var packed = 0;
@@ -188,34 +187,35 @@ var gifken;
                 } while(size > 1);
                 packed |= count - 1;
             }
-            packed |= gif.colorResolution;
+            packed |= gif.colorResolution; // not supported
             if (gif.sortFlag) {
                 packed |= 8;
             }
             header.setUint8(10, packed);
             header.setUint8(11, gif.bgColorIndex);
-            header.setUint8(12, gif.pixelAspectRatio);
+            header.setUint8(12, gif.pixelAspectRatio); // not supported
             output.push(new Uint8Array(header.buffer));
             if (gif.globalTableSize > 0) {
                 output.push(gif.globalColorTable);
             }
 
+            // write extension
             if (gif.isLoop) {
                 var appExt = new DataView(new ArrayBuffer(19));
                 appExt.setUint8(0, 0x21);
                 appExt.setUint8(1, 0xff);
                 appExt.setUint8(2, 0x0b);
-                appExt.setUint8(3, 0x4e);
-                appExt.setUint8(4, 0x45);
-                appExt.setUint8(5, 0x54);
-                appExt.setUint8(6, 0x53);
-                appExt.setUint8(7, 0x43);
-                appExt.setUint8(8, 0x41);
-                appExt.setUint8(9, 0x50);
-                appExt.setUint8(10, 0x45);
-                appExt.setUint8(11, 0x32);
-                appExt.setUint8(12, 0x2e);
-                appExt.setUint8(13, 0x30);
+                appExt.setUint8(3, 0x4e); // N
+                appExt.setUint8(4, 0x45); // E
+                appExt.setUint8(5, 0x54); // T
+                appExt.setUint8(6, 0x53); // S
+                appExt.setUint8(7, 0x43); // C
+                appExt.setUint8(8, 0x41); // A
+                appExt.setUint8(9, 0x50); // P
+                appExt.setUint8(10, 0x45); // E
+                appExt.setUint8(11, 0x32); // 2
+                appExt.setUint8(12, 0x2e); // .
+                appExt.setUint8(13, 0x30); // 0
                 appExt.setUint8(14, 3);
                 appExt.setUint8(15, 1);
                 appExt.setUint16(16, gif.loopCount, true);
@@ -284,7 +284,7 @@ var gifken;
                 output.push(new Uint8Array([0]));
             });
 
-            output.push(new Uint8Array([0x3b]));
+            output.push(new Uint8Array([0x3b])); // trailer
             return output;
         };
 
@@ -298,7 +298,7 @@ var gifken;
             return Gif.writeToBlob(this);
         };
 
-        Gif.writeToBlob = /**
+        /**
         * Convert Gif to Blob.
         *
         * @static
@@ -306,7 +306,7 @@ var gifken;
         * @param {Gif} gif
         * @return {Blob} BLOB
         **/
-        function (gif) {
+        Gif.writeToBlob = function (gif) {
             return new Blob(Gif._writeToArrayBuffer(gif), { "type": "image/gif" });
         };
 
@@ -320,7 +320,7 @@ var gifken;
             return Gif.writeToDataUrl(this);
         };
 
-        Gif.writeToDataUrl = /**
+        /**
         * Convert Gif to Data-URL string.
         *
         * @static
@@ -328,7 +328,7 @@ var gifken;
         * @param {Gif} gif
         * @return {string} Data-URL string
         **/
-        function (gif) {
+        Gif.writeToDataUrl = function (gif) {
             var output = Gif._writeToArrayBuffer(gif);
 
             var str = "";
@@ -358,10 +358,10 @@ var gifken;
                     gif.version = _this._version;
                     gif.width = _this._width;
                     gif.height = _this._height;
-                    gif.colorResolution = _this.colorResolution;
-                    gif.sortFlag = _this.sortFlag;
+                    gif.colorResolution = _this.colorResolution; // not supported
+                    gif.sortFlag = _this.sortFlag; // not supported
                     gif.bgColorIndex = _this.bgColorIndex;
-                    gif.pixelAspectRatio = _this.pixelAspectRatio;
+                    gif.pixelAspectRatio = _this.pixelAspectRatio; // not supported
                     gif.globalColorTable = _this._globalColorTable;
                     if (index !== 0 && frame.transparentFlag) {
                         if (frame.pixelData === undefined) {
@@ -392,10 +392,10 @@ var gifken;
                     gif.version = _this._version;
                     gif.width = _this._width;
                     gif.height = _this._height;
-                    gif.colorResolution = _this.colorResolution;
-                    gif.sortFlag = _this.sortFlag;
+                    gif.colorResolution = _this.colorResolution; // not supported
+                    gif.sortFlag = _this.sortFlag; // not supported
                     gif.bgColorIndex = _this.bgColorIndex;
-                    gif.pixelAspectRatio = _this.pixelAspectRatio;
+                    gif.pixelAspectRatio = _this.pixelAspectRatio; // not supported
                     gif.globalColorTable = _this._globalColorTable;
                     gif.frames = [frame];
                     res.push(gif);
@@ -441,10 +441,10 @@ var gifken;
             res.version = this._version;
             res.width = this._width;
             res.height = this._height;
-            res.colorResolution = this.colorResolution;
-            res.sortFlag = this.sortFlag;
+            res.colorResolution = this.colorResolution; // not supported
+            res.sortFlag = this.sortFlag; // not supported
             res.bgColorIndex = this.bgColorIndex;
-            res.pixelAspectRatio = this.pixelAspectRatio;
+            res.pixelAspectRatio = this.pixelAspectRatio; // not supported
             res.globalColorTable = this._globalColorTable;
             res.frames = this.frames.reverse();
             res.isLoop = this.isLoop;
@@ -475,7 +475,7 @@ var gifken;
             frame.width = gif.width || 1;
             frame.height = gif.height || 1;
             frame.localTableSize = 0;
-            frame.lzwCode = 4;
+            frame.lzwCode = 4; // ?
             frame.pixelData = new Uint8Array(frame.width * frame.height);
             return frame;
         };
@@ -634,7 +634,7 @@ var gifken;
                 if (blockSize === 0) {
                     break;
                 }
-                dataList.push(new Uint8Array((data.buffer).slice(offset, offset + blockSize)));
+                dataList.push(new Uint8Array(data.buffer.slice(offset, offset + blockSize)));
                 offset += blockSize;
             }
             var bytes = new Uint8Array(totalSize);
@@ -850,7 +850,7 @@ var gifken;
             dict = Object.create(null);
         }
         resetAllParamsAndTablesToStartUpState();
-        bb.push(clearCode, curNumCodeBits);
+        bb.push(clearCode, curNumCodeBits); // clear code at first
 
         var concatedCodesKey = "";
         for (var i = 0, len = actualCodes.length; i < len; ++i) {
@@ -864,6 +864,7 @@ var gifken;
             if (!(concatedCodesKey in dict)) {
                 bb.push(dict[oldKey], curNumCodeBits);
 
+                // GIF spec defines a maximum code value of 4095 (0xFFF)
                 if (nextCode <= 0xFFF) {
                     dict[concatedCodesKey] = nextCode;
                     if (nextCode === (1 << curNumCodeBits))
