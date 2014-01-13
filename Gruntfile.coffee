@@ -41,7 +41,6 @@ module.exports = (grunt) ->
                 options:
                     specs: "test/*Spec.js"
 
-    grunt.loadNpmTasks "grunt-ts"
     grunt.loadNpmTasks "grunt-contrib-uglify"
     grunt.loadNpmTasks "grunt-contrib-jshint"
     grunt.loadNpmTasks "grunt-contrib-yuidoc"
