@@ -13,14 +13,14 @@ module.exports = (grunt) ->
                     "build/gifken.min.js": ["build/gifken.js"]
         jshint:
             all: ["sample/chromeextension/background/contextMenus.js", "sample/chromeextension/content_scripts/agif.js"]
-        ts:
+        typescript:
             build:
                 src: ["src/gifken.ts"]
-                outDir: "build"
+                dest: "build/gifken.js"
                 options:
                     target: "es5"
-                    removeComments: false
-                    sourceMap: false
+                    comments: true
+                    sourcemap: false
                     module: "commonjs"
         yuidoc:
             compile:
@@ -46,6 +46,7 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks "grunt-contrib-jshint"
     grunt.loadNpmTasks "grunt-contrib-yuidoc"
     grunt.loadNpmTasks "grunt-contrib-jasmine"
+    grunt.loadNpmTasks "grunt-typescript"
 
-    grunt.registerTask "ci", ["ts:build", "jshint", "uglify", "jasmine:task"]
+    grunt.registerTask "ci", ["typescript:build", "jshint", "uglify", "jasmine:task"]
     grunt.registerTask "default", ["ci", "yuidoc"]
