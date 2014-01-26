@@ -17,6 +17,10 @@ describe("GIF画像作成", function() {
         var a = function() {
             gifken.Gif.writeToDataUrl(gif);
         }
+        var b = function() {
+            gif.writeToDataUrl();
+        }
         expect(a).not.toThrow();
+        expect(b).not.toThrow();
     });
 });
