@@ -1,6 +1,4 @@
 module.exports = (grunt) ->
-    "use strict"
-
     pkg = grunt.file.readJSON "package.json"
 
     grunt.initConfig
