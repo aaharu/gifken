@@ -10,5 +10,6 @@ tscommand.tmp.txt
 *.pem
 *.crx
 
+src/*.js
 docs/
 examples/

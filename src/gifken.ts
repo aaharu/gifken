@@ -1,5 +1,5 @@
 /*!
-gifken v0.0.1-alpha
+gifken v0.0.2-alpha
 Copyright (c) 2013 aaharu
 This software is released under the MIT License.
 https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -14,7 +14,7 @@ This product includes following softwares:
         - https://github.com/nobuoka/GifWriter.js
         - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
  */
-module gifken {
+export module gifken {
     export class Gif {
         /**
          * GIF Header block.
@@ -323,6 +323,21 @@ module gifken {
 
             output.push(new Uint8Array([0x3b])); // trailer
             return output;
+        }
+
+        /**
+         * TODO
+         **/
+        public writeToArray(): any {
+            var output = Gif._writeToArrayBuffer(this);
+
+            var arr = [];
+            output.forEach((buffer) => {
+                for (var i = 0, l = buffer.byteLength; i < l; ++i) {
+                    arr.push(buffer[i]);
+                }
+            });
+            return arr;
         }
 
         /**
