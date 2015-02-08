@@ -12,8 +12,8 @@ JavaScriptでGIF画像の解析、及び作成をすることができます。
 ### ブラウザ
 
 1. gifkenのロード  
-```
-<script src="javascripts/gifken.min.js"></script>
+```html
+<script src="javascripts/gifken-client.min.js"></script>
 ```
 2. hoge
 
@@ -33,25 +33,27 @@ gifken
 ├── build                     ビルド結果
 ├── node_modules
 ├── sample                    サンプル
-│   └── chromeextension
-└── src                       ソース
+│   ├── chromeextension
+│   └── node
+├── src                       ソース
+└── test
 ```
 
 ビルド方法
 ------
 
 以下のものが必要です。
-* Node.js ~0.8
+* Node.js ~0.10
 * npm
 
 ```
 git clone *thisrepo*
 cd gifken
 npm install
-
+grunt
 ```
 
-License
+ライセンス
 ------
 
 see https://github.com/aaharu/gifken/blob/master/LICENSE

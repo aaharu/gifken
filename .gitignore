@@ -11,5 +11,6 @@ tscommand.tmp.txt
 *.crx
 
 src/*.js
+!src/gifken-client.js
 docs/
 examples/

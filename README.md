@@ -5,8 +5,6 @@ gifken
 
 日本語 https://github.com/aaharu/gifken/blob/master/README-ja.md
 
-書きかけです。
-
 Directories
 ------
 
@@ -14,23 +12,25 @@ Directories
 gifken
 ├── build                     build results
 ├── node_modules
-├── sample                    sample softwares using gifken
-│   └── chromeextension
-└── src                       source directory
+├── sample                    sample software using gifken
+│   ├── chromeextension
+│   └── node
+├── src                       source directory
+└── test
 ```
 
 Build
 ------
 
 To build gifken, following tools are required
-* Node.js ~0.8
+* Node.js ~0.10
 * npm
 
 ```
 git clone *thisrepo*
 cd gifken
 npm install
-
+grunt
 ```
 
 License

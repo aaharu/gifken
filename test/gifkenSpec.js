@@ -1,6 +1,6 @@
 "use strict";
 
-var gifken = require("../build/gifken.js").gifken;
+var gifken = require("../build/gifken.js");
 
 describe("GIF画像作成", function() {
     var gif;

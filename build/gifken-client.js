@@ -1,19 +1,97 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*!
-gifken v0.0.2-alpha
-Copyright (c) 2013 aaharu
-This software is released under the MIT License.
-https://raw.github.com/aaharu/gifken/master/LICENSE
+ gifken v0.0.2-alpha
+ Copyright (c) 2015 aaharu
+ This software is released under the MIT License.
+ https://raw.github.com/aaharu/gifken/master/LICENSE
 
-This product includes following softwares:
-    * jsgif
-        - Copyright (c) 2011 Shachaf Ben-Kiki
-        - https://github.com/shachaf/jsgif
-        - https://raw.github.com/shachaf/jsgif/master/LICENSE
-    * GifWriter.js
-        - Copyright (c) 2013 NOBUOKA Yu
-        - https://github.com/nobuoka/GifWriter.js
-        - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
+ This product includes following software:
+ * jsgif
+ - Copyright (c) 2011 Shachaf Ben-Kiki
+ - https://github.com/shachaf/jsgif
+ - https://raw.github.com/shachaf/jsgif/master/LICENSE
+ * GifWriter.js
+ - Copyright (c) 2013 NOBUOKA Yu
+ - https://github.com/nobuoka/GifWriter.js
+ - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
+ */
+var GifPresenter = (function () {
+    function GifPresenter() {
+    }
+    /**
+     * Convert Gif to Blob.
+     *
+     * @static
+     * @method writeToBlob
+     * @param {Uint8Array[]} bytes
+     * @return {Blob} BLOB
+     **/
+    GifPresenter.writeToBlob = function (bytes) {
+        return new Blob(bytes, { "type": "image/gif" });
+    };
+    /**
+     * Convert Gif to Data-URL string.
+     *
+     * @static
+     * @method writeToDataUrl
+     * @param {Uint8Array[]} bytes
+     * @return {string} Data-URL string
+     **/
+    GifPresenter.writeToDataUrl = function (bytes) {
+        var str = "";
+        bytes.forEach(function (buffer) {
+            var codes = [];
+            for (var i = 0, l = buffer.byteLength; i < l; ++i) {
+                codes.push(buffer[i]);
+            }
+            str += String.fromCharCode.apply(null, codes);
+        });
+        return "data:image/gif;base64," + btoa(str);
+    };
+    return GifPresenter;
+})();
+module.exports = GifPresenter;
+
+},{}],2:[function(require,module,exports){
+/*!
+ gifken v0.0.2-alpha
+ Copyright (c) 2015 aaharu
+ This software is released under the MIT License.
+ https://raw.github.com/aaharu/gifken/master/LICENSE
+
+ This product includes following software:
+ * jsgif
+ - Copyright (c) 2011 Shachaf Ben-Kiki
+ - https://github.com/shachaf/jsgif
+ - https://raw.github.com/shachaf/jsgif/master/LICENSE
+ * GifWriter.js
+ - Copyright (c) 2013 NOBUOKA Yu
+ - https://github.com/nobuoka/GifWriter.js
+ - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
+ */
+
+var gifken = require("./gifken"),
+    GifPresenter = require("./GifPresenter");
+
+gifken.GifPresenter = GifPresenter;
+window.gifken = gifken;
+
+},{"./GifPresenter":1,"./gifken":3}],3:[function(require,module,exports){
+/*!
+ gifken v0.0.2-alpha
+ Copyright (c) 2015 aaharu
+ This software is released under the MIT License.
+ https://raw.github.com/aaharu/gifken/master/LICENSE
+
+ This product includes following software:
+ * jsgif
+ - Copyright (c) 2011 Shachaf Ben-Kiki
+ - https://github.com/shachaf/jsgif
+ - https://raw.github.com/shachaf/jsgif/master/LICENSE
+ * GifWriter.js
+ - Copyright (c) 2013 NOBUOKA Yu
+ - https://github.com/nobuoka/GifWriter.js
+ - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
  */
 var gifken;
 (function (gifken) {
@@ -40,7 +118,10 @@ var gifken;
             this.sortFlag = false; // not supported
             this.bgColorIndex = 1; // ?
             this.pixelAspectRatio = 0; // not supported
-            this.globalColorTable = Color.createColorTable([new Color(0, 0, 0), new Color(255, 255, 255)]);
+            this.globalColorTable = Color.createColorTable([
+                new Color(0, 0, 0),
+                new Color(255, 255, 255)
+            ]);
         }
         /**
          * Parse Gif image from ArrayBuffer.
@@ -138,16 +219,19 @@ var gifken;
             enumerable: true,
             configurable: true
         });
+        Gif.prototype.writeToArrayBuffer = function () {
+            return Gif.writeToArrayBuffer(this);
+        };
         /**
          * Convert Gif to Uint8Array[].
          *
          * @private
          * @static
-         * @method _writeToArrayBuffer
+         * @method writeToArrayBuffer
          * @param {Gif} gif
          * @return {Uint8Array[]} array of Uint8Array
          **/
-        Gif._writeToArrayBuffer = function (gif) {
+        Gif.writeToArrayBuffer = function (gif) {
             var output = [];
             // write header
             var header = new DataView(new ArrayBuffer(13));
@@ -278,7 +362,7 @@ var gifken;
          * TODO
          **/
         Gif.prototype.writeToArray = function () {
-            var output = Gif._writeToArrayBuffer(this);
+            var output = Gif.writeToArrayBuffer(this);
             var arr = [];
             output.forEach(function (buffer) {
                 for (var i = 0, l = buffer.byteLength; i < l; ++i) {
@@ -288,65 +372,16 @@ var gifken;
             return arr;
         };
         /**
-         * Return Blob object.
-         *
-         * @method writeToBlob
-         * @return {Blob} BLOB
-         **/
-        Gif.prototype.writeToBlob = function () {
-            return Gif.writeToBlob(this);
-        };
-        /**
-         * Convert Gif to Blob.
-         *
-         * @static
-         * @method writeToBlob
-         * @param {Gif} gif
-         * @return {Blob} BLOB
-         **/
-        Gif.writeToBlob = function (gif) {
-            return new Blob(Gif._writeToArrayBuffer(gif), { "type": "image/gif" });
-        };
-        /**
-         * Return Data-URL string.
-         *
-         * @method writeToDataUrl
-         * @return {string} Data-URL string
-         **/
-        Gif.prototype.writeToDataUrl = function () {
-            return Gif.writeToDataUrl(this);
-        };
-        /**
-         * Convert Gif to Data-URL string.
-         *
-         * @static
-         * @method writeToDataUrl
-         * @param {Gif} gif
-         * @return {string} Data-URL string
-         **/
-        Gif.writeToDataUrl = function (gif) {
-            var output = Gif._writeToArrayBuffer(gif);
-            var str = "";
-            output.forEach(function (buffer) {
-                var codes = [];
-                for (var i = 0, l = buffer.byteLength; i < l; ++i) {
-                    codes.push(buffer[i]);
-                }
-                str += String.fromCharCode.apply(null, codes);
-            });
-            return "data:image/gif;base64," + btoa(str);
-        };
-        /**
          * Split the animated GIF image.
          *
          * @method split
-         * @param {boolean} orverwrite
+         * @param {boolean} overwrite
          * @return {Gif[]} array of Gif object
          **/
-        Gif.prototype.split = function (orverwrite) {
+        Gif.prototype.split = function (overwrite) {
             var _this = this;
             var res = [];
-            if (orverwrite) {
+            if (overwrite) {
                 this.frames.forEach(function (frame, index) {
                     var gif = new Gif();
                     gif.version = _this._version;
@@ -402,7 +437,7 @@ var gifken;
          * Playback the animated GIF image.
          *
          * @method playback
-         * @param {boolean} orverwrite
+         * @param {boolean} overwrite
          * @return {Gif} Gif object
          **/
         Gif.prototype.playback = function (overwrite) {
@@ -454,19 +489,18 @@ var gifken;
          *
          * @class Frame
          * @constructor
-         * @param {Gif} gif
          **/
-        function Frame(gif) {
+        function Frame() {
         }
-        Frame.init = function (gif) {
-            var frame = new Frame(gif);
+        Frame.init = function (width, height) {
+            var frame = new Frame();
             frame.transparentFlag = false;
             frame.delayCentiSeconds = 0;
             frame.transparentColorIndex = 0;
             frame.x = 0;
             frame.y = 0;
-            frame.width = gif.width || 1;
-            frame.height = gif.height || 1;
+            frame.width = width || 1;
+            frame.height = height || 1;
             frame.localTableSize = 0;
             frame.lzwCode = 4; // ?
             frame.pixelData = new Uint8Array(frame.width * frame.height);
@@ -536,7 +570,7 @@ var gifken;
                 tableSize = 1 << ((packed & 7) + 1);
             }
             gif.colorResolution = packed & 112;
-            gif.sortFlag = (packed & 8) === 8 ? true : false;
+            gif.sortFlag = (packed & 8) === 8;
             gif.bgColorIndex = data.getUint8(11);
             gif.pixelAspectRatio = data.getUint8(12);
             if (tableFlag !== 128) {
@@ -555,7 +589,7 @@ var gifken;
                 var label = data.getUint8(offset + 1);
                 if (label === 0xf9) {
                     if (gif.frames[gif.frameIndex1] === undefined) {
-                        frame = new Frame(gif);
+                        frame = new Frame();
                         offset = this.readGraphicControlExtensionBlock(frame, data, offset);
                         gif.frames.push(frame);
                     }
@@ -582,7 +616,7 @@ var gifken;
             if (separator === 0x2c) {
                 var frame;
                 if (gif.frames[gif.frameIndex2] === undefined) {
-                    frame = new Frame(gif);
+                    frame = new Frame();
                     offset = this.readImageBlock(frame, data, offset);
                     gif.frames.push(frame);
                 }
@@ -693,162 +727,166 @@ var gifken;
         };
         return GifParser;
     })();
-    /*
-    ===begin jsgif===
-    */
-    var lzwDecode = function (minCodeSize, data, len) {
-        var pos = 0; // Maybe this streaming thing should be merged with the Stream?
-        var readCode = function (size) {
-            var code = 0;
-            for (var i = 0; i < size; ++i) {
-                if (data[pos >> 3] & (1 << (pos & 7))) {
-                    code |= 1 << i;
-                }
-                ++pos;
+})(gifken || (gifken = {}));
+/*
+ ===begin jsgif===
+ */
+var lzwDecode = function (minCodeSize, data, len) {
+    var pos = 0; // Maybe this streaming thing should be merged with the Stream?
+    var readCode = function (size) {
+        var code = 0;
+        for (var i = 0; i < size; ++i) {
+            if (data[pos >> 3] & (1 << (pos & 7))) {
+                code |= 1 << i;
             }
-            return code;
-        };
-        var output = new Uint8Array(len);
-        var clearCode = 1 << minCodeSize;
-        var eoiCode = clearCode + 1;
-        var codeSize = minCodeSize + 1;
-        var dict = [];
-        var clear = function () {
-            dict = [];
-            codeSize = minCodeSize + 1;
-            for (var i = 0; i < clearCode; ++i) {
-                dict[i] = [i];
+            ++pos;
+        }
+        return code;
+    };
+    var output = new Uint8Array(len);
+    var clearCode = 1 << minCodeSize;
+    var eoiCode = clearCode + 1;
+    var codeSize = minCodeSize + 1;
+    var dict = [];
+    var clear = function () {
+        dict = [];
+        codeSize = minCodeSize + 1;
+        for (var i = 0; i < clearCode; ++i) {
+            dict[i] = [i];
+        }
+        dict[clearCode] = [];
+        dict[eoiCode] = null;
+    };
+    var code;
+    var last;
+    var offset = 0;
+    while (true) {
+        last = code;
+        code = readCode(codeSize);
+        if (code === clearCode) {
+            clear();
+            continue;
+        }
+        if (code === eoiCode)
+            break;
+        if (code < dict.length) {
+            if (last !== clearCode) {
+                dict.push(dict[last].concat(dict[code][0]));
             }
-            dict[clearCode] = [];
-            dict[eoiCode] = null;
-        };
-        var code;
-        var last;
-        var offset = 0;
-        while (true) {
-            last = code;
-            code = readCode(codeSize);
-            if (code === clearCode) {
-                clear();
-                continue;
-            }
-            if (code === eoiCode)
-                break;
-            if (code < dict.length) {
-                if (last !== clearCode) {
-                    dict.push(dict[last].concat(dict[code][0]));
-                }
+        }
+        else {
+            if (code !== dict.length)
+                throw new Error('Invalid LZW code.');
+            dict.push(dict[last].concat(dict[last][0]));
+        }
+        output.set(dict[code], offset);
+        offset += dict[code].length;
+        if (dict.length === (1 << codeSize) && codeSize < 12) {
+            // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
+            codeSize++;
+        }
+    }
+    return output;
+};
+/*
+ ===end jsgif===
+ */
+/*
+ ===begin GifWriter.js===
+ */
+var GifCompressedCodesToByteArrayConverter = (function () {
+    function GifCompressedCodesToByteArrayConverter() {
+        this.__out = [];
+        this.__remNumBits = 0;
+        this.__remVal = 0;
+    }
+    GifCompressedCodesToByteArrayConverter.prototype.push = function (code, numBits) {
+        while (numBits > 0) {
+            this.__remVal = ((code << this.__remNumBits) & 0xFF) + this.__remVal;
+            if (numBits + this.__remNumBits >= 8) {
+                this.__out.push(this.__remVal);
+                numBits = numBits - (8 - this.__remNumBits);
+                code = (code >> (8 - this.__remNumBits));
+                this.__remVal = 0;
+                this.__remNumBits = 0;
             }
             else {
-                if (code !== dict.length)
-                    throw new Error('Invalid LZW code.');
-                dict.push(dict[last].concat(dict[last][0]));
-            }
-            output.set(dict[code], offset);
-            offset += dict[code].length;
-            if (dict.length === (1 << codeSize) && codeSize < 12) {
-                // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
-                codeSize++;
+                this.__remNumBits = numBits + this.__remNumBits;
+                numBits = 0;
             }
         }
-        return output;
     };
-    /*
-    ===end jsgif===
-    */
-    /*
-    ===begin GifWriter.js===
-    */
-    var GifCompressedCodesToByteArrayConverter = (function () {
-        function GifCompressedCodesToByteArrayConverter() {
-            this.__out = [];
-            this.__remNumBits = 0;
-            this.__remVal = 0;
-        }
-        GifCompressedCodesToByteArrayConverter.prototype.push = function (code, numBits) {
-            while (numBits > 0) {
-                this.__remVal = ((code << this.__remNumBits) & 0xFF) + this.__remVal;
-                if (numBits + this.__remNumBits >= 8) {
-                    this.__out.push(this.__remVal);
-                    numBits = numBits - (8 - this.__remNumBits);
-                    code = (code >> (8 - this.__remNumBits));
-                    this.__remVal = 0;
-                    this.__remNumBits = 0;
-                }
-                else {
-                    this.__remNumBits = numBits + this.__remNumBits;
-                    numBits = 0;
-                }
-            }
-        };
-        GifCompressedCodesToByteArrayConverter.prototype.flush = function () {
-            this.push(0, 8);
-            this.__remNumBits = 0;
-            this.__remVal = 0;
-            var out = this.__out;
-            this.__out = [];
-            return out;
-        };
-        return GifCompressedCodesToByteArrayConverter;
-    })();
-    function compressWithLZW(actualCodes, numBits) {
-        // `numBits` is LZW-initial code size, which indicates how many bits are needed
-        // to represents actual code.
-        var bb = new GifCompressedCodesToByteArrayConverter();
-        // GIF spec says: A special Clear code is defined which resets all
-        // compression/decompression parameters and tables to a start-up state.
-        // The value of this code is 2**<code size>. For example if the code size
-        // indicated was 4 (image was 4 bits/pixel) the Clear code value would be 16
-        // (10000 binary). The Clear code can appear at any point in the image data
-        // stream and therefore requires the LZW algorithm to process succeeding
-        // codes as if a new data stream was starting. Encoders should
-        // output a Clear code as the first code of each image data stream.
-        var clearCode = (1 << numBits);
-        // GIF spec says: An End of Information code is defined that explicitly
-        // indicates the end of the image data stream. LZW processing terminates
-        // when this code is encountered. It must be the last code output by the
-        // encoder for an image. The value of this code is <Clear code>+1.
-        var endOfInfoCode = clearCode + 1;
-        var nextCode;
-        var curNumCodeBits;
-        var dict;
-        function resetAllParamsAndTablesToStartUpState() {
-            // GIF spec says: The first available compression code value is <Clear code>+2.
-            nextCode = endOfInfoCode + 1;
-            curNumCodeBits = numBits + 1;
-            dict = Object.create(null);
-        }
-        resetAllParamsAndTablesToStartUpState();
-        bb.push(clearCode, curNumCodeBits); // clear code at first
-        var concatedCodesKey = "";
-        for (var i = 0, len = actualCodes.length; i < len; ++i) {
-            var code = actualCodes[i];
-            var dictKey = String.fromCharCode(code);
-            if (!(dictKey in dict))
-                dict[dictKey] = code;
-            var oldKey = concatedCodesKey;
-            concatedCodesKey += dictKey;
-            if (!(concatedCodesKey in dict)) {
-                bb.push(dict[oldKey], curNumCodeBits);
-                // GIF spec defines a maximum code value of 4095 (0xFFF)
-                if (nextCode <= 0xFFF) {
-                    dict[concatedCodesKey] = nextCode;
-                    if (nextCode === (1 << curNumCodeBits))
-                        curNumCodeBits++;
-                    nextCode++;
-                }
-                else {
-                    bb.push(clearCode, curNumCodeBits);
-                    resetAllParamsAndTablesToStartUpState();
-                    dict[dictKey] = code;
-                }
-                concatedCodesKey = dictKey;
-            }
-        }
-        bb.push(dict[concatedCodesKey], curNumCodeBits);
-        bb.push(endOfInfoCode, curNumCodeBits);
-        return bb.flush();
+    GifCompressedCodesToByteArrayConverter.prototype.flush = function () {
+        this.push(0, 8);
+        this.__remNumBits = 0;
+        this.__remVal = 0;
+        var out = this.__out;
+        this.__out = [];
+        return out;
+    };
+    return GifCompressedCodesToByteArrayConverter;
+})();
+function compressWithLZW(actualCodes, numBits) {
+    // `numBits` is LZW-initial code size, which indicates how many bits are needed
+    // to represents actual code.
+    var bb = new GifCompressedCodesToByteArrayConverter();
+    // GIF spec says: A special Clear code is defined which resets all
+    // compression/decompression parameters and tables to a start-up state.
+    // The value of this code is 2**<code size>. For example if the code size
+    // indicated was 4 (image was 4 bits/pixel) the Clear code value would be 16
+    // (10000 binary). The Clear code can appear at any point in the image data
+    // stream and therefore requires the LZW algorithm to process succeeding
+    // codes as if a new data stream was starting. Encoders should
+    // output a Clear code as the first code of each image data stream.
+    var clearCode = (1 << numBits);
+    // GIF spec says: An End of Information code is defined that explicitly
+    // indicates the end of the image data stream. LZW processing terminates
+    // when this code is encountered. It must be the last code output by the
+    // encoder for an image. The value of this code is <Clear code>+1.
+    var endOfInfoCode = clearCode + 1;
+    var nextCode;
+    var curNumCodeBits;
+    var dict;
+    function resetAllParamsAndTablesToStartUpState() {
+        // GIF spec says: The first available compression code value is <Clear code>+2.
+        nextCode = endOfInfoCode + 1;
+        curNumCodeBits = numBits + 1;
+        dict = Object.create(null);
     }
-})(gifken = exports.gifken || (exports.gifken = {}));
+    resetAllParamsAndTablesToStartUpState();
+    bb.push(clearCode, curNumCodeBits); // clear code at first
+    var concatedCodesKey = "";
+    for (var i = 0, len = actualCodes.length; i < len; ++i) {
+        var code = actualCodes[i];
+        var dictKey = String.fromCharCode(code);
+        if (!(dictKey in dict))
+            dict[dictKey] = code;
+        var oldKey = concatedCodesKey;
+        concatedCodesKey += dictKey;
+        if (!(concatedCodesKey in dict)) {
+            bb.push(dict[oldKey], curNumCodeBits);
+            // GIF spec defines a maximum code value of 4095 (0xFFF)
+            if (nextCode <= 0xFFF) {
+                dict[concatedCodesKey] = nextCode;
+                if (nextCode === (1 << curNumCodeBits))
+                    curNumCodeBits++;
+                nextCode++;
+            }
+            else {
+                bb.push(clearCode, curNumCodeBits);
+                resetAllParamsAndTablesToStartUpState();
+                dict[dictKey] = code;
+            }
+            concatedCodesKey = dictKey;
+        }
+    }
+    bb.push(dict[concatedCodesKey], curNumCodeBits);
+    bb.push(endOfInfoCode, curNumCodeBits);
+    return bb.flush();
+}
+module.exports = gifken;
+/*
+ ===end GifWriter.js===
+ */
 
-},{}]},{},[1]);
+},{}]},{},[2]);
