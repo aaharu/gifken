@@ -30,7 +30,7 @@ module.exports = (grunt) ->
                 name: '<%= pkg.name %>'
                 description: '<%= pkg.description %>'
                 version: '<%= pkg.version %>'
-                url: 'http://aaharu.github.io/gifken/'
+                url: '<%= pkg.homepage %>'
                 options:
                     extension: '.ts'
                     paths: 'src'

@@ -1,6 +1,6 @@
 {
   "name": "gifken",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-alpha",
   "description": "TypeScript / JavaScript GIF parser and maker",
   "main": "build/gifken.min.js",
   "homepage": "http://aaharu.github.io/gifken/",
