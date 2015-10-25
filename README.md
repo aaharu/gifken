@@ -1,12 +1,12 @@
 gifken
 ======
 
-[![Build Status](https://travis-ci.org/aaharu/gifken.png?branch=master)](https://travis-ci.org/aaharu/gifken)
+[![Build Status](https://img.shields.io/travis/aaharu/gifken.svg)](https://travis-ci.org/aaharu/gifken) [![Dependency Status](https://img.shields.io/gemnasium/aaharu/gifken.svg)](https://gemnasium.com/aaharu/gifken)  
 
 [日本語](https://github.com/aaharu/gifken/blob/master/README-ja.md)
 
 - http://aaharu.github.io/gifken/
-- [API Docs][http://aaharu.github.io/gifken/docs/]
+- [API Docs](http://aaharu.github.io/gifken/docs/)
 
 Directories
 ------

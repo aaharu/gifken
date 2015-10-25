@@ -7,7 +7,7 @@ JavaScriptでGIF画像の解析、及び作成をすることができます。
 あとでまとめます。
 
 - http://aaharu.github.io/gifken/
-- [API Docs][http://aaharu.github.io/gifken/docs/]
+- [API Docs](http://aaharu.github.io/gifken/docs/)
 
 使い方
 ------
