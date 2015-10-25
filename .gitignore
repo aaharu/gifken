@@ -3,6 +3,10 @@ Thumbs.db
 Desktop.ini
 .idea/
 *.iml
+*.swp
+*~
+\#*\#
+.vscode/
 
 node_modules/
 
@@ -10,7 +14,7 @@ tscommand.tmp.txt
 *.pem
 *.crx
 
-src/*.js
-!src/gifken-client.js
+build/tmp/
 docs/
 examples/
+test/sample.gif

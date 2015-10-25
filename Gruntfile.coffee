@@ -10,21 +10,12 @@ module.exports = (grunt) ->
                 files:
                     'build/gifken.min.js': ['build/gifken.js']
                     'build/gifken-client.min.js': ['build/gifken-client.js']
-        jshint:
-            all: [
-                'sample/chromeextension/background/contextMenus.js'
-                'sample/chromeextension/content_scripts/agif.js'
-                'sample/node/app.js'
-            ]
         typescript:
             build:
-                src: [
-                    'src/gifken.ts'
-                    'src/GifPresenter.ts'
-                ]
+                src: ['src/*.ts']
+                dest: 'build/tmp/'
                 options:
-                    target: 'es5'
-                    module: 'commonjs'
+                    target: 'es6'
         yuidoc:
             compile:
                 name: '<%= pkg.name %>'
@@ -36,41 +27,35 @@ module.exports = (grunt) ->
                     paths: 'src'
                     outdir: 'docs'
         watch:
-            files: [
-                'src/Gif.ts'
-                'src/GifPresenter.ts'
-                'src/gifken-client.ts'
-            ]
+            files: ['src/*.ts']
             tasks: 'ci'
         jasmine_node:
             all: ['test/']
             options:
                 extensions: 'js'
                 specNameMatcher: 'Spec'
-        copy:
-            build:
-                files: [
-                    src: ['src/gifken.js']
-                    dest: 'build/gifken.js'
-                    filter: 'isFile'
-                ]
         browserify:
             main:
                 files:
-                    'build/gifken-client.js': ['src/gifken-client.js']
+                    'build/gifken-client.js': ['build/gifken-client.js']
                 options:
                     entry: 'gifken'
-
+        babel:
+            dist:
+                files:
+                    'build/gifken.js': 'build/tmp/gifken.js'
+                    'build/gifken-client.js': 'build/tmp/gifken-client.js'
+        clean: ['build/tmp/']
 
     grunt.loadNpmTasks 'grunt-contrib-uglify'
-    grunt.loadNpmTasks 'grunt-contrib-jshint'
     grunt.loadNpmTasks 'grunt-contrib-yuidoc'
 #    grunt.loadNpmTasks "grunt-contrib-jasmine"
     grunt.loadNpmTasks 'grunt-jasmine-node'
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-typescript'
     grunt.loadNpmTasks 'grunt-browserify'
-    grunt.loadNpmTasks 'grunt-contrib-copy'
+    grunt.loadNpmTasks 'grunt-babel'
+    grunt.loadNpmTasks 'grunt-contrib-clean'
 
-    grunt.registerTask 'ci', ['typescript:build', 'jshint', 'copy', 'browserify', 'uglify', 'jasmine_node']
+    grunt.registerTask 'ci', ['clean', 'typescript:build', 'babel', 'browserify', 'uglify', 'jasmine_node']
     grunt.registerTask 'default', ['ci', 'yuidoc']

@@ -1,6 +1,6 @@
 /*!
- gifken v0.0.2-alpha
- Copyright (c) 2015 aaharu
+ gifken v0.1.0
+ Copyright (c) 2013-2015 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
 
@@ -15,7 +15,9 @@
  - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
  */
 
-class GifPresenter {
+import { Gif, GifFrame, GifColor, GifParser, GifVersion } from "./gifken";
+
+export class GifPresenter {
     /**
      * Convert Gif to Blob.
      *
@@ -48,4 +50,12 @@ class GifPresenter {
         return "data:image/gif;base64," + btoa(str);
     }
 }
-export = GifPresenter;
+
+(<any>(window || self)).gifken = {
+	Gif: Gif,
+	GifFrame: GifFrame,
+	GifColor: GifColor,
+	GifParser: GifParser,
+	GifVersion: GifVersion,
+	GifPresenter: GifPresenter
+};
