@@ -3,13 +3,6 @@ module.exports = (grunt) ->
 
     grunt.initConfig
         pkg: pkg
-        uglify:
-            options:
-                preserveComments: 'some'
-            compile:
-                files:
-                    'build/gifken.min.js': ['build/gifken.js']
-                    'build/gifken-client.min.js': ['build/gifken-client.js']
         typescript:
             build:
                 src: ['src/*.ts']
@@ -47,7 +40,6 @@ module.exports = (grunt) ->
                     'build/gifken-client.js': 'build/tmp/gifken-client.js'
         clean: ['build/tmp/']
 
-    grunt.loadNpmTasks 'grunt-contrib-uglify'
     grunt.loadNpmTasks 'grunt-contrib-yuidoc'
 #    grunt.loadNpmTasks "grunt-contrib-jasmine"
     grunt.loadNpmTasks 'grunt-jasmine-node'
@@ -57,5 +49,5 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-babel'
     grunt.loadNpmTasks 'grunt-contrib-clean'
 
-    grunt.registerTask 'ci', ['clean', 'typescript:build', 'babel', 'browserify', 'uglify', 'jasmine_node']
+    grunt.registerTask 'ci', ['clean', 'typescript:build', 'babel', 'browserify', 'jasmine_node']
     grunt.registerTask 'default', ['ci', 'yuidoc']
