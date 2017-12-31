@@ -24,15 +24,14 @@ gifken
 ## Build
 
 To build gifken, following tools are required
-* Node.js ~0.10
+* Node.js >=8.0.0
 * npm
-* grunt
 
 ```
 git clone *thisrepo*
 cd gifken
 npm install
-grunt
+npm run build
 ```
 
 ## License

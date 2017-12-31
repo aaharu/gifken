@@ -1,10 +1,7 @@
 language: node_js
 node_js:
-    - "0.10"
-    - "0.12"
-    - "4.1"
-before_script:
-    - npm install -g grunt-cli
+  - lts/*
+  - node
 branches:
-    except:
-        - gh-pages
+  except:
+    - gh-pages
