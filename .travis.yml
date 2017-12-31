@@ -3,5 +3,7 @@ node_js:
   - lts/*
   - node
 branches:
+  only:
+    - master
   except:
     - gh-pages

@@ -2,7 +2,7 @@
   "name": "gifken",
   "version": "0.5.0",
   "description": "TypeScript / JavaScript GIF parser and maker",
-  "main": "build/gifken.min.js",
+  "main": "build/gifken.js",
   "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
     "build": "tsc --target ES2016 --module commonjs --outDir build/ src/gifken.ts src/gifken-client.ts && babel --presets env --out-file build/gifken.js build/gifken.js && browserify -t [ babelify --presets [ env ] --minified ] build/gifken-client.js --outfile build/gifken-client.js",
