@@ -15,6 +15,4 @@ node_modules/
 
 build/*.js
 !build/gifken-client.js
-docs/
-examples/
 test/sample.gif
