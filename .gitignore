@@ -10,11 +10,11 @@ Desktop.ini
 
 node_modules/
 
-tscommand.tmp.txt
 *.pem
 *.crx
 
-build/tmp/
+build/*.js
+!build/gifken-client.js
 docs/
 examples/
 test/sample.gif
