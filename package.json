@@ -6,7 +6,7 @@
   "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
     "build": "tsc --target ES2016 --module commonjs --outDir build/ src/gifken.ts src/gifken-client.ts && babel --presets env --out-file build/gifken.js build/gifken.js && browserify -t [ babelify --presets [ env ] --minified ] build/gifken-client.js --outfile build/gifken-client.js",
-    "test": "jest --coverage",
+    "test": "npm build && jest --coverage",
     "doc": "typedoc --target ES2016 --module commonjs --out docs --readme README.md src && node d.js"
   },
   "repository": {
