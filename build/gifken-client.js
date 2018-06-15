@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";/*!
  gifken v0.5.0
  Copyright (c) 2013 aaharu
@@ -53,7 +53,8 @@ if(gif.version===GifVersion_1.GifVersion.GIF89a){header.setUint8(4,57);// 9
 }else{header.setUint8(4,55);// 7
 }header.setUint8(5,97);// a
 header.setUint16(6,gif.width,true);header.setUint16(8,gif.height,true);var packed=0;var size=gif.globalTableSize;if(size>0){packed|=128;var count=0;do{size=size>>1;++count}while(size>1);packed|=count-1}packed|=gif.colorResolution;// not supported
-if(gif.sortFlag){packed|=8}header.setUint8(10,packed);header.setUint8(11,gif.bgColorIndex);header.setUint8(12,gif.pixelAspectRatio);// not supported
+if(gif.sortFlag){// not supported
+packed|=8}header.setUint8(10,packed);header.setUint8(11,gif.bgColorIndex);header.setUint8(12,gif.pixelAspectRatio);// not supported
 output.push(new Uint8Array(header.buffer));if(gif.globalTableSize>0){output.push(gif.globalColorTable)}// write extension
 if(gif.isLoop){var appExt=new DataView(new ArrayBuffer(19));appExt.setUint8(0,33);appExt.setUint8(1,255);appExt.setUint8(2,11);appExt.setUint8(3,78);// N
 appExt.setUint8(4,69);// E

@@ -10,6 +10,9 @@ Desktop.ini
 
 node_modules/
 
+coverage/
+.nyc_output/
+
 *.pem
 *.crx
 
