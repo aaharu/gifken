@@ -98,7 +98,7 @@ for (var i = 0; i < newgif.frames[0].pixelData.length; ++i) {
 }
 var buffer = newgif.writeToArray();
 
-fs.writeFile(path.resolve(__dirname, "sample.gif"), new Buffer(buffer), function (err) {
+fs.writeFile(path.resolve(__dirname, "sample.gif"), Buffer.from(buffer), function (err) {
     if (err) throw err;
     console.log("It's saved!");
 });
