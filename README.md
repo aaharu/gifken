@@ -1,6 +1,6 @@
 # gifken
 
-[![npm version](https://img.shields.io/npm/v/gifken.svg)](https://www.npmjs.com/package/gifken) [![Build Status](https://img.shields.io/travis/aaharu/gifken.svg)](https://travis-ci.org/aaharu/gifken) [![Dependency Status](https://img.shields.io/gemnasium/aaharu/gifken.svg)](https://gemnasium.com/aaharu/gifken) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faaharu%2Fgifken.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faaharu%2Fgifken?ref=badge_shield)
+[![npm version](https://img.shields.io/npm/v/gifken.svg)](https://www.npmjs.com/package/gifken) [![Build Status](https://img.shields.io/travis/aaharu/gifken.svg)](https://travis-ci.org/aaharu/gifken) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faaharu%2Fgifken.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faaharu%2Fgifken?ref=badge_shield) [![codecov](https://codecov.io/gh/aaharu/gifken/branch/master/graph/badge.svg)](https://codecov.io/gh/aaharu/gifken)
 
 ## How to use
 
@@ -129,7 +129,7 @@ To build gifken, following tools are required
 git clone *thisrepo*
 cd gifken
 npm install
-npm run build
+npm run-script build
 ```
 
 ## License

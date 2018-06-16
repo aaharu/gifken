@@ -6,6 +6,6 @@
  */
 
 export enum GifVersion {
-    GIF89a,
-    GIF87a
+    GIF89a = "GIF89a",
+    GIF87a = "GIF87a"
 }

@@ -5,12 +5,6 @@
  https://raw.github.com/aaharu/gifken/master/LICENSE
  */
 
-import { GifColor } from './GifColor';
-import { GifFrame } from './GifFrame';
-import { GifParser } from './GifParser';
-import { GifVersion } from './GifVersion';
-import { Gif } from './Gif';
-
 export class GifPresenter {
     /**
      * Convert Gif to Blob.

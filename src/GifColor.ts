@@ -12,9 +12,10 @@ export class GifColor {
     constructor(public r:number, public g:number, public b:number) {
     }
 
+    /** TODO
     static valueOf(color:string) {
-        // TODO
     }
+    */
 
     static createColorTable(colors:GifColor[]):Uint8Array {
         var numbers:number[] = [];

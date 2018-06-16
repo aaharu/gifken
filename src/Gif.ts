@@ -304,12 +304,12 @@ export class Gif implements GifImage {
     public writeToArray():any {
         var output = Gif.writeToArrayBuffer(this);
 
-        var arr = [];
+        var arr:any = [];
         output.forEach((buffer) => {
-                for (var i = 0, l = buffer.byteLength; i < l; ++i) {
+            for (var i = 0, l = buffer.byteLength; i < l; ++i) {
                 arr.push(buffer[i]);
-                }
-                });
+            }
+        });
         return arr;
     }
 
@@ -432,7 +432,7 @@ class GifCompressedCodesToByteArrayConverter {
         this.__remVal = 0;
     }
 
-    push(code, numBits) {
+    push(code:any, numBits:any) {
         while (numBits > 0) {
             this.__remVal = ((code << this.__remNumBits) & 0xFF) + this.__remVal;
             if (numBits + this.__remNumBits >= 8) {
@@ -479,9 +479,9 @@ function compressWithLZW(actualCodes:Uint8Array, numBits:number):number[] {
     // encoder for an image. The value of this code is <Clear code>+1.
     var endOfInfoCode = clearCode + 1;
 
-    var nextCode;
-    var curNumCodeBits;
-    var dict;
+    var nextCode = endOfInfoCode + 1;
+    var curNumCodeBits = numBits + 1;
+    var dict = Object.create(null);
 
     function resetAllParamsAndTablesToStartUpState() {
         // GIF spec says: The first available compression code value is <Clear code>+2.
