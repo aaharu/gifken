@@ -5,8 +5,8 @@
   "main": "build/gifken.js",
   "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
-    "build": "tsc --target ES2016 --module commonjs --outDir build/ src/gifken.ts src/gifken-client.ts && babel --presets env --out-file build/gifken.js build/gifken.js && browserify -t [ babelify --presets [ env ] --minified ] build/gifken-client.js --outfile build/gifken-client.js",
-    "test": "npm run-script build && jest --coverage",
+    "build": "tsc && browserify build/src/gifken-client.js --outfile build/gifken-client.js",
+    "test": "jest",
     "doc": "typedoc --target ES2016 --module commonjs --out docs --readme README.md src && node d.js"
   },
   "repository": {
@@ -22,14 +22,13 @@
     "node": ">=8.0.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babelify": "^8.0.0",
+    "@types/jest": "^23.1.0",
+    "@types/node": "^10.3.3",
     "browserify": "^16.2.2",
     "codecov": "^3.0.2",
     "jest": "^23.1.0",
     "jsdoc": "^3.5.5",
+    "ts-jest": "^22.4.6",
     "typedoc": "^0.11.1",
     "typescript": "^2.9.2"
   },
@@ -38,5 +37,22 @@
   ],
   "keywords": [
     "animated-gif"
-  ]
+  ],
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "**/test/**/*.ts?(x)"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts?(x)"
+    ]
+  }
 }

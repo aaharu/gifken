@@ -5,13 +5,18 @@
  https://raw.github.com/aaharu/gifken/master/LICENSE
  */
 
- import { GifImage } from './GifImage';
+import { GifImage } from './GifImage';
 import { GifFrame } from './GifFrame';
 import { GifVersion } from './GifVersion';
 
 export class GifParser {
     static readHeader(gif:GifImage, data:DataView):number {
-        gif.version = GifVersion[String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5))];
+        var version = String.fromCharCode(data.getUint8(0), data.getUint8(1), data.getUint8(2), data.getUint8(3), data.getUint8(4), data.getUint8(5));
+        if (version == GifVersion.GIF87a) {
+            gif.version = GifVersion.GIF87a;
+        } else {
+            gif.version = GifVersion.GIF89a;
+        }
         gif.width = data.getUint16(6, true);
         gif.height = data.getUint16(8, true);
         var packed = data.getUint8(10); // Global Color Table Flag(1 bit) Color Resolution(3 bits) Sort Flag(1 bit) Size of Global Color Table(3 bits)
@@ -54,7 +59,7 @@ export class GifParser {
                 return offset;
             }
             if (label === 0xfe) {
-                offset = this.readCommentExtensionBlock(gif, data, offset);
+                offset = this.readCommentExtensionBlock(data, offset);
                 return offset;
             }
             if (label === 0xff) {
@@ -62,7 +67,7 @@ export class GifParser {
                 return offset;
             }
             if (label === 0x01) {
-                offset = this.readPlainTextExtensionBlock(gif, data, offset);
+                offset = this.readPlainTextExtensionBlock(data, offset);
                 return offset;
             }
         }
@@ -149,7 +154,7 @@ export class GifParser {
         return offset;
     }
 
-    static readCommentExtensionBlock(gif:GifImage, data:DataView, offset:number):number {
+    static readCommentExtensionBlock(data:DataView, offset:number):number {
         // skip
         offset += 2;
         while (true) {
@@ -170,7 +175,7 @@ export class GifParser {
         return offset + 8;
     }
 
-    static readPlainTextExtensionBlock(gif:GifImage, data:DataView, offset:number):number {
+    static readPlainTextExtensionBlock(data:DataView, offset:number):number {
         // skip
         offset += 2;
         while (true) {

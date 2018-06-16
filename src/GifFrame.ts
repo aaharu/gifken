@@ -57,7 +57,7 @@ export class GifFrame {
 var lzwDecode = function (minCodeSize:number, data:Uint8Array, len:number):Uint8Array {
     var pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-    var readCode = function (size):number {
+    var readCode = function (size:number):number {
         var code = 0;
         for (var i = 0; i < size; ++i) {
             if (data[pos >> 3] & (1 << (pos & 7))) {
@@ -75,7 +75,7 @@ var lzwDecode = function (minCodeSize:number, data:Uint8Array, len:number):Uint8
 
     var codeSize = minCodeSize + 1;
 
-    var dict = [];
+    var dict:any[] = [];
 
     var clear = function () {
         dict = [];
@@ -87,8 +87,8 @@ var lzwDecode = function (minCodeSize:number, data:Uint8Array, len:number):Uint8
         dict[eoiCode] = null;
     };
 
-    var code;
-    var last;
+    var code = 0;
+    var last:number;
     var offset = 0;
 
     while (true) {
