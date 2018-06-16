@@ -2,11 +2,12 @@
   "name": "gifken",
   "version": "0.5.1",
   "description": "TypeScript / JavaScript GIF parser and maker",
-  "main": "build/gifken.js",
+  "main": "build/src/gifken.js",
   "homepage": "http://aaharu.github.io/gifken/",
   "scripts": {
     "build": "tsc && browserify build/src/gifken-client.js --outfile build/gifken-client.js",
-    "test": "jest",
+    "test": "rimraf coverage && jest",
+    "clean": "rimraf build coverage",
     "doc": "typedoc --target ES2016 --module commonjs --out docs --readme README.md src && node d.js"
   },
   "repository": {
@@ -28,12 +29,13 @@
     "codecov": "^3.0.2",
     "jest": "^23.1.0",
     "jsdoc": "^3.5.5",
+    "rimraf": "^2.6.2",
     "ts-jest": "^22.4.6",
     "typedoc": "^0.11.1",
     "typescript": "^2.9.2"
   },
   "files": [
-    "build"
+    "build/src"
   ],
   "keywords": [
     "animated-gif"
