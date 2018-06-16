@@ -36,7 +36,7 @@ describe("create a GIF image", function() {
     }
     let tmp = function() {
       let buffer = gif.writeToArray();
-      fs.writeFile(path.resolve(__dirname, "sample.gif"), new Buffer(buffer), function (err:any) {
+      fs.writeFile(path.resolve(__dirname, "sample.gif"), Buffer.from(buffer), function (err:any) {
         if (err) throw err;
       });
     }
