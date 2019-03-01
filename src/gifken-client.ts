@@ -1,5 +1,5 @@
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -15,18 +15,18 @@
  - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
  */
 
-import { GifColor } from './GifColor';
-import { GifFrame } from './GifFrame';
-import { GifParser } from './GifParser';
-import { GifVersion } from './GifVersion';
-import { Gif } from './Gif';
-import { GifPresenter } from './GifPresenter';
+import { GifColor } from "./GifColor";
+import { GifFrame } from "./GifFrame";
+import { GifParser } from "./GifParser";
+import { GifVersion } from "./GifVersion";
+import { Gif } from "./Gif";
+import { GifPresenter } from "./GifPresenter";
 
 (<any>(window || self)).gifken = {
-    Gif: Gif,
-    GifFrame: GifFrame,
-    GifColor: GifColor,
-    GifParser: GifParser,
-    GifVersion: GifVersion,
-    GifPresenter: GifPresenter
+  Gif: Gif,
+  GifFrame: GifFrame,
+  GifColor: GifColor,
+  GifParser: GifParser,
+  GifVersion: GifVersion,
+  GifPresenter: GifPresenter
 };

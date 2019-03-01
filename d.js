@@ -1,6 +1,6 @@
-const fs = require('fs')
-fs.writeFile('docs/.nojekyll', '', (err) => {
+const fs = require("fs");
+fs.writeFile("docs/.nojekyll", "", err => {
   if (err) {
-    throw err
+    throw err;
   }
-})
+});

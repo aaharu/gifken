@@ -5,6 +5,7 @@
 ## How to use
 
 ### Create a GIF image in browser
+
 ```html
 <div id="content"></div>
 <script src="gifken-client.js"></script>
@@ -45,6 +46,7 @@ window.onload = function () {
 ```
 
 ### Split an animated GIF image in browser
+
 ```javascript
 window.onload = function () {
     var xhr = new XMLHttpRequest();
@@ -108,7 +110,7 @@ fs.writeFile(path.resolve(__dirname, "sample.gif"), Buffer.from(buffer), functio
 
 ## Directories
 
-```
+```text
 gifken
 ├── build                     build results
 ├── node_modules
@@ -122,10 +124,11 @@ gifken
 ## Build
 
 To build gifken, following tools are required
-* Node.js >=8.0.0
-* npm
 
-```
+- Node.js >=8.0.0
+- npm
+
+```bash
 git clone *thisrepo*
 cd gifken
 npm install

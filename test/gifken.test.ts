@@ -1,20 +1,19 @@
 "use strict";
 
-import { GifColor } from '../src/GifColor';
-import { GifFrame } from '../src/GifFrame';
-import { Gif } from '../src/Gif';
+import { GifColor } from "../src/GifColor";
+import { GifFrame } from "../src/GifFrame";
+import { Gif } from "../src/Gif";
+import * as fs from "fs";
+import * as path from "path";
 
-const fs = require("fs"),
-  path = require("path");
+describe("create a GIF image", () => {
+  let gif: Gif;
 
-describe("create a GIF image", function() {
-  let gif:Gif;
-
-  beforeEach(function() {
+  beforeEach(() => {
     gif = new Gif();
   });
 
-  it("do not throw exceptions", function() {
+  it("do not throw exceptions", () => {
     gif.width = 100;
     gif.height = 100;
     gif.globalColorTable = GifColor.createColorTable([
@@ -34,12 +33,16 @@ describe("create a GIF image", function() {
     for (let i = 0; i < gif.frames[0].pixelData.length; ++i) {
       gif.frames[0].pixelData[i] = i % 11;
     }
-    let tmp = function() {
+    let tmp = () => {
       let buffer = gif.writeToArray();
-      fs.writeFile(path.resolve(__dirname, "sample.gif"), Buffer.from(buffer), function (err:any) {
-        if (err) throw err;
-      });
-    }
+      fs.writeFile(
+        path.resolve(__dirname, "sample.gif"),
+        Buffer.from(buffer),
+        err => {
+          if (err) throw err;
+        }
+      );
+    };
     expect(tmp).not.toThrow();
   });
 });
