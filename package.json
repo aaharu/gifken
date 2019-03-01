@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc && browserify build/src/gifken-client.js --outfile build/gifken-client.js",
     "test": "rimraf coverage && jest",
-    "clean": "rimraf build coverage",
+    "clean": "rimraf build coverage docs",
     "doc": "typedoc --target ES2016 --module commonjs --out docs --readme README.md src && node d.js"
   },
   "repository": {
