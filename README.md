@@ -110,7 +110,7 @@ fs.writeFile(path.resolve(__dirname, "sample.gif"), Buffer.from(buffer), functio
 
 ## Directories
 
-```text
+```
 gifken
 ├── build                     build results
 ├── node_modules
