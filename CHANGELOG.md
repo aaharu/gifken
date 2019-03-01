@@ -6,6 +6,7 @@
 
 - update devDependencies
 - change indent size
+- use eslint and prettier
 
 ## [0.5.1] - 2018-06-16
 

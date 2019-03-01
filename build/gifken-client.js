@@ -1,7 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -36,7 +36,8 @@ var Gif = /** @class */ (function () {
         this.bgColorIndex = 1; // ?
         this.pixelAspectRatio = 0; // not supported
         this.globalColorTable = GifColor_1.GifColor.createColorTable([
-            new GifColor_1.GifColor(0, 0, 0), new GifColor_1.GifColor(255, 255, 255)
+            new GifColor_1.GifColor(0, 0, 0),
+            new GifColor_1.GifColor(255, 255, 255)
         ]);
     }
     /**
@@ -169,7 +170,8 @@ var Gif = /** @class */ (function () {
             packed |= count - 1;
         }
         packed |= gif.colorResolution; // not supported
-        if (gif.sortFlag) { // not supported
+        if (gif.sortFlag) {
+            // not supported
             packed |= 8;
         }
         header.setUint8(10, packed);
@@ -247,7 +249,9 @@ var Gif = /** @class */ (function () {
                 compressedBytes = new Uint8Array(compressedBytes);
             }
             else {
-                compressedBytes = compressedBytes || new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
+                compressedBytes =
+                    compressedBytes ||
+                        new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
             }
             var l = compressedBytes.length;
             while (true) {
@@ -399,11 +403,11 @@ var GifCompressedCodesToByteArrayConverter = /** @class */ (function () {
     }
     GifCompressedCodesToByteArrayConverter.prototype.push = function (code, numBits) {
         while (numBits > 0) {
-            this.__remVal = ((code << this.__remNumBits) & 0xFF) + this.__remVal;
+            this.__remVal = ((code << this.__remNumBits) & 0xff) + this.__remVal;
             if (numBits + this.__remNumBits >= 8) {
                 this.__out.push(this.__remVal);
                 numBits = numBits - (8 - this.__remNumBits);
-                code = (code >> (8 - this.__remNumBits));
+                code = code >> (8 - this.__remNumBits);
                 this.__remVal = 0;
                 this.__remNumBits = 0;
             }
@@ -435,7 +439,7 @@ function compressWithLZW(actualCodes, numBits) {
     // stream and therefore requires the LZW algorithm to process succeeding
     // codes as if a new data stream was starting. Encoders should
     // output a Clear code as the first code of each image data stream.
-    var clearCode = (1 << numBits);
+    var clearCode = 1 << numBits;
     // GIF spec says: An End of Information code is defined that explicitly
     // indicates the end of the image data stream. LZW processing terminates
     // when this code is encountered. It must be the last code output by the
@@ -463,9 +467,9 @@ function compressWithLZW(actualCodes, numBits) {
         if (!(concatedCodesKey in dict)) {
             bb.push(dict[oldKey], curNumCodeBits);
             // GIF spec defines a maximum code value of 4095 (0xFFF)
-            if (nextCode <= 0xFFF) {
+            if (nextCode <= 0xfff) {
                 dict[concatedCodesKey] = nextCode;
-                if (nextCode === (1 << curNumCodeBits))
+                if (nextCode === 1 << curNumCodeBits)
                     curNumCodeBits++;
                 nextCode++;
             }
@@ -488,7 +492,7 @@ function compressWithLZW(actualCodes, numBits) {
 },{"./GifColor":2,"./GifParser":4,"./GifVersion":6}],2:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -504,9 +508,9 @@ var GifColor = /** @class */ (function () {
         this.b = b;
     }
     /** TODO
-    static valueOf(color:string) {
-    }
-    */
+      static valueOf(color:string) {
+      }
+      */
     GifColor.createColorTable = function (colors) {
         var numbers = [];
         for (var i = 1; i <= 8; ++i) {
@@ -529,7 +533,7 @@ exports.GifColor = GifColor;
 },{}],3:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -615,12 +619,12 @@ var lzwDecode = function (minCodeSize, data, len) {
         }
         else {
             if (code !== dict.length)
-                throw new Error('Invalid LZW code.');
+                throw new Error("Invalid LZW code.");
             dict.push(dict[last].concat(dict[last][0]));
         }
         output.set(dict[code], offset);
         offset += dict[code].length;
-        if (dict.length === (1 << codeSize) && codeSize < 12) {
+        if (dict.length === 1 << codeSize && codeSize < 12) {
             // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
             codeSize++;
         }
@@ -634,7 +638,7 @@ var lzwDecode = function (minCodeSize, data, len) {
 },{}],4:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -827,7 +831,7 @@ exports.GifParser = GifParser;
 },{"./GifFrame":3,"./GifVersion":6}],5:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -842,7 +846,7 @@ var GifPresenter = /** @class */ (function () {
      * @return {Blob} BLOB
      */
     GifPresenter.writeToBlob = function (bytes) {
-        return new Blob(bytes, { "type": "image/gif" });
+        return new Blob(bytes, { type: "image/gif" });
     };
     /**
      * Convert Gif to Data-URL string.
@@ -867,7 +871,7 @@ exports.GifPresenter = GifPresenter;
 },{}],6:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
@@ -882,7 +886,7 @@ var GifVersion;
 },{}],7:[function(require,module,exports){
 "use strict";
 /*!
- gifken v0.5.0
+ gifken
  Copyright (c) 2013 aaharu
  This software is released under the MIT License.
  https://raw.github.com/aaharu/gifken/master/LICENSE
