@@ -5,6 +5,7 @@
 ### Changed
 
 - update devDependencies
+- change indent size
 
 ## [0.5.1] - 2018-06-16
 

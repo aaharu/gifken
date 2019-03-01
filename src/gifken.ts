@@ -15,10 +15,10 @@
  - https://raw.github.com/nobuoka/GifWriter.js/master/LICENSE.txt
  */
 
-import { GifColor as tmpGifColor } from './GifColor';
-import { GifFrame as tmpGifFrame } from './GifFrame';
-import { GifVersion as tmpGifVersion } from './GifVersion';
-import { Gif as tmpGif } from './Gif';
+import { GifColor as tmpGifColor } from "./GifColor";
+import { GifFrame as tmpGifFrame } from "./GifFrame";
+import { GifVersion as tmpGifVersion } from "./GifVersion";
+import { Gif as tmpGif } from "./Gif";
 
 export const Gif = tmpGif;
 export const GifFrame = tmpGifFrame;
