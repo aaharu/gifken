@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.3] - 2019-03-24
+
+### Added
+
+- publish `*.d.ts`
+
 ## [0.5.2] - 2019-03-02
 
 ### Changed
@@ -16,5 +22,6 @@
 
 ## 0.5.0
 
-[0.5.2]: https://github.com/aaharu/gifken/compare/0.5.1...0.5.2
+[0.5.3]: https://github.com/aaharu/gifken/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/aaharu/gifken/compare/0.5.1...v0.5.2
 [0.5.1]: https://github.com/aaharu/gifken/compare/0.5.0...0.5.1
