@@ -21,10 +21,10 @@ export class GifPresenter {
    * @return {string} Data-URL string
    */
   static writeToDataUrl(bytes: Uint8Array[]): string {
-    var str = "";
+    let str = "";
     bytes.forEach(buffer => {
-      var codes: number[] = [];
-      for (var i = 0, l = buffer.byteLength; i < l; ++i) {
+      const codes: number[] = [];
+      for (let i = 0, l = buffer.byteLength; i < l; ++i) {
         codes.push(buffer[i]);
       }
       str += String.fromCharCode.apply(null, codes);
