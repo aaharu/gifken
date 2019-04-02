@@ -16,6 +16,6 @@ coverage/
 *.pem
 *.crx
 
-build/src/
-build/test/
+/lib/
+/gifken.js
 test/sample.gif
