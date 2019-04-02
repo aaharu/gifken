@@ -69,9 +69,11 @@
 				<h2 id="how-to-use">How to use</h2>
 				<h3 id="create-a-gif-image-in-browser">Create a GIF image in browser</h3>
 				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"content"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"gifken-client.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text/javascript"</span>&gt;</span><span class="javascript">
-<span class="hljs-built_in">window</span>.onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/gifken/gifken.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/javascript"</span>&gt;</span><span class="javascript">
+<span class="hljs-keyword">const</span> gifken = <span class="hljs-built_in">require</span>(<span class="hljs-string">"gifken"</span>);
+
+<span class="hljs-built_in">window</span>.onload = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
     <span class="hljs-keyword">var</span> newgif = <span class="hljs-keyword">new</span> gifken.Gif();
     newgif.width = <span class="hljs-number">100</span>;
     newgif.height = <span class="hljs-number">100</span>;
@@ -124,36 +126,41 @@
 };</code></pre>
 				<h3 id="create-a-gif-image-by-node-js">Create a GIF image by Node.js</h3>
 				<pre><code class="language-bash">npm install gifken</code></pre>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>),
-    path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>),
-    gifken = <span class="hljs-built_in">require</span>(<span class="hljs-string">"gifken"</span>);
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> gifken = <span class="hljs-built_in">require</span>(<span class="hljs-string">"gifken"</span>),
+  fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>),
+  path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);
 
-<span class="hljs-keyword">var</span> newgif = <span class="hljs-keyword">new</span> gifken.Gif();
+<span class="hljs-keyword">const</span> newgif = <span class="hljs-keyword">new</span> gifken.Gif();
 newgif.width = <span class="hljs-number">100</span>;
 newgif.height = <span class="hljs-number">100</span>;
 newgif.globalColorTable = gifken.GifColor.createColorTable([
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">255</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">255</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">100</span>, <span class="hljs-number">255</span>, <span class="hljs-number">100</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">255</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>),
-    <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>)
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">255</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">255</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">100</span>, <span class="hljs-number">255</span>, <span class="hljs-number">100</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">255</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>),
+  <span class="hljs-keyword">new</span> gifken.GifColor(<span class="hljs-number">255</span>, <span class="hljs-number">255</span>, <span class="hljs-number">255</span>)
 ]);
 newgif.frames = [gifken.GifFrame.init(newgif.width, newgif.height)];
-<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; newgif.frames[<span class="hljs-number">0</span>].pixelData.length; ++i) {
-    newgif.frames[<span class="hljs-number">0</span>].pixelData[i] = i % <span class="hljs-number">11</span>;
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; newgif.frames[<span class="hljs-number">0</span>].pixelData.length; ++i) {
+  newgif.frames[<span class="hljs-number">0</span>].pixelData[i] = i % <span class="hljs-number">11</span>;
 }
-<span class="hljs-keyword">var</span> buffer = newgif.writeToArray();
+<span class="hljs-keyword">const</span> buffer = newgif.writeToArray();
 
-fs.writeFile(path.resolve(__dirname, <span class="hljs-string">"sample.gif"</span>), Buffer.from(buffer), <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+fs.writeFile(
+  path.resolve(__dirname, <span class="hljs-string">"sample.gif"</span>),
+  Buffer.from(buffer),
+  err =&gt; {
     <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
+    <span class="hljs-comment">// eslint-disable-next-line no-console</span>
     <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"It's saved!"</span>);
-});</code></pre>
+  }
+);</code></pre>
 				<ul>
 					<li><a href="http://aaharu.github.io/gifken/docs/">API Docs</a></li>
 				</ul>
@@ -206,12 +213,6 @@ npm run-script build</code></pre>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_gifversion_.html">"<wbr>Gif<wbr>Version"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_gifken_.html">"gifken"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_gifken_client_.html">"gifken-<wbr>client"</a>
 					</li>
 				</ul>
 			</nav>
