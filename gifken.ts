@@ -17,6 +17,6 @@ const gifken = {
   GifFrame: GifFrame,
   GifParser: GifParser,
   GifVersion: GifVersion,
-  GifPresenter: GifPresenter,
+  GifPresenter: GifPresenter
 };
 export default gifken;

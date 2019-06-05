@@ -16,6 +16,7 @@ import { GifFrame } from "./GifFrame";
 import { GifParser } from "./GifParser";
 import { GifVersion } from "./GifVersion";
 import { GifImage } from "./GifImage";
+import { GifCompressedCodesToByteArrayConverter } from "./GifCompressedCodesToByteArrayConverter";
 
 export class Gif implements GifImage {
   /**
@@ -60,7 +61,7 @@ export class Gif implements GifImage {
   /**
    * Gif
    */
-  constructor(skipDefault?: boolean) {
+  public constructor(skipDefault?: boolean) {
     this.frames = [];
     if (skipDefault) {
       return;
@@ -84,7 +85,7 @@ export class Gif implements GifImage {
    *
    * @return {Gif} parsed gif object
    */
-  static parse(buffer: ArrayBuffer): Gif {
+  public static parse(buffer: ArrayBuffer): Gif {
     var gif = new Gif(true);
     var data = new DataView(buffer);
     var offset = GifParser.readHeader(gif, data);
@@ -281,7 +282,7 @@ export class Gif implements GifImage {
       } else {
         compressedBytes =
           compressedBytes ||
-          new Uint8Array(compressWithLZW(frame.pixelData, frame.lzwCode));
+          new Uint8Array(Gif.compressWithLZW(frame.pixelData, frame.lzwCode));
       }
       var l = compressedBytes.length;
       while (true) {
@@ -351,7 +352,7 @@ export class Gif implements GifImage {
             }
           }
           if (edited) {
-            var compressedBytes = compressWithLZW(
+            var compressedBytes = Gif.compressWithLZW(
               frame.pixelData,
               frame.lzwCode
             );
@@ -404,7 +405,7 @@ export class Gif implements GifImage {
             }
           }
           if (edited) {
-            var compressedBytes = compressWithLZW(
+            var compressedBytes = Gif.compressWithLZW(
               frame.pixelData,
               frame.lzwCode
             );
@@ -427,111 +428,77 @@ export class Gif implements GifImage {
     res.loopCount = this._loopCount;
     return res;
   }
-}
 
-/*
- ===begin GifWriter.js===
- */
-class GifCompressedCodesToByteArrayConverter {
-  private __out: number[];
-  private __remNumBits: number;
-  private __remVal: number;
+  /*
+   ===begin GifWriter.js===
+   */
+  public static compressWithLZW(
+    actualCodes: Uint8Array,
+    numBits: number
+  ): number[] {
+    // `numBits` is LZW-initial code size, which indicates how many bits are needed
+    // to represents actual code.
 
-  constructor() {
-    this.__out = [];
-    this.__remNumBits = 0;
-    this.__remVal = 0;
-  }
+    var bb = new GifCompressedCodesToByteArrayConverter();
 
-  push(code: any, numBits: any) {
-    while (numBits > 0) {
-      this.__remVal = ((code << this.__remNumBits) & 0xff) + this.__remVal;
-      if (numBits + this.__remNumBits >= 8) {
-        this.__out.push(this.__remVal);
-        numBits = numBits - (8 - this.__remNumBits);
-        code = code >> (8 - this.__remNumBits);
-        this.__remVal = 0;
-        this.__remNumBits = 0;
-      } else {
-        this.__remNumBits = numBits + this.__remNumBits;
-        numBits = 0;
+    // GIF spec says: A special Clear code is defined which resets all
+    // compression/decompression parameters and tables to a start-up state.
+    // The value of this code is 2**<code size>. For example if the code size
+    // indicated was 4 (image was 4 bits/pixel) the Clear code value would be 16
+    // (10000 binary). The Clear code can appear at any point in the image data
+    // stream and therefore requires the LZW algorithm to process succeeding
+    // codes as if a new data stream was starting. Encoders should
+    // output a Clear code as the first code of each image data stream.
+    var clearCode = 1 << numBits;
+    // GIF spec says: An End of Information code is defined that explicitly
+    // indicates the end of the image data stream. LZW processing terminates
+    // when this code is encountered. It must be the last code output by the
+    // encoder for an image. The value of this code is <Clear code>+1.
+    var endOfInfoCode = clearCode + 1;
+
+    var nextCode = endOfInfoCode + 1;
+    var curNumCodeBits = numBits + 1;
+    var dict = Object.create(null);
+
+    function resetAllParamsAndTablesToStartUpState() {
+      // GIF spec says: The first available compression code value is <Clear code>+2.
+      nextCode = endOfInfoCode + 1;
+      curNumCodeBits = numBits + 1;
+      dict = Object.create(null);
+    }
+
+    resetAllParamsAndTablesToStartUpState();
+    bb.push(clearCode, curNumCodeBits); // clear code at first
+
+    var concatedCodesKey = "";
+    for (var i = 0, len = actualCodes.length; i < len; ++i) {
+      var code = actualCodes[i];
+      var dictKey = String.fromCharCode(code);
+      if (!(dictKey in dict)) dict[dictKey] = code;
+
+      var oldKey = concatedCodesKey;
+      concatedCodesKey += dictKey;
+      if (!(concatedCodesKey in dict)) {
+        bb.push(dict[oldKey], curNumCodeBits);
+
+        // GIF spec defines a maximum code value of 4095 (0xFFF)
+        if (nextCode <= 0xfff) {
+          dict[concatedCodesKey] = nextCode;
+          if (nextCode === 1 << curNumCodeBits) curNumCodeBits++;
+          nextCode++;
+        } else {
+          bb.push(clearCode, curNumCodeBits);
+          resetAllParamsAndTablesToStartUpState();
+          dict[dictKey] = code;
+        }
+        concatedCodesKey = dictKey;
       }
     }
+    bb.push(dict[concatedCodesKey], curNumCodeBits);
+    bb.push(endOfInfoCode, curNumCodeBits);
+    return bb.flush();
   }
-
-  flush() {
-    this.push(0, 8);
-    this.__remNumBits = 0;
-    this.__remVal = 0;
-    var out = this.__out;
-    this.__out = [];
-    return out;
-  }
+  /*
+   ===end GifWriter.js===
+   */
 }
-
-function compressWithLZW(actualCodes: Uint8Array, numBits: number): number[] {
-  // `numBits` is LZW-initial code size, which indicates how many bits are needed
-  // to represents actual code.
-
-  var bb = new GifCompressedCodesToByteArrayConverter();
-
-  // GIF spec says: A special Clear code is defined which resets all
-  // compression/decompression parameters and tables to a start-up state.
-  // The value of this code is 2**<code size>. For example if the code size
-  // indicated was 4 (image was 4 bits/pixel) the Clear code value would be 16
-  // (10000 binary). The Clear code can appear at any point in the image data
-  // stream and therefore requires the LZW algorithm to process succeeding
-  // codes as if a new data stream was starting. Encoders should
-  // output a Clear code as the first code of each image data stream.
-  var clearCode = 1 << numBits;
-  // GIF spec says: An End of Information code is defined that explicitly
-  // indicates the end of the image data stream. LZW processing terminates
-  // when this code is encountered. It must be the last code output by the
-  // encoder for an image. The value of this code is <Clear code>+1.
-  var endOfInfoCode = clearCode + 1;
-
-  var nextCode = endOfInfoCode + 1;
-  var curNumCodeBits = numBits + 1;
-  var dict = Object.create(null);
-
-  function resetAllParamsAndTablesToStartUpState() {
-    // GIF spec says: The first available compression code value is <Clear code>+2.
-    nextCode = endOfInfoCode + 1;
-    curNumCodeBits = numBits + 1;
-    dict = Object.create(null);
-  }
-
-  resetAllParamsAndTablesToStartUpState();
-  bb.push(clearCode, curNumCodeBits); // clear code at first
-
-  var concatedCodesKey = "";
-  for (var i = 0, len = actualCodes.length; i < len; ++i) {
-    var code = actualCodes[i];
-    var dictKey = String.fromCharCode(code);
-    if (!(dictKey in dict)) dict[dictKey] = code;
-
-    var oldKey = concatedCodesKey;
-    concatedCodesKey += dictKey;
-    if (!(concatedCodesKey in dict)) {
-      bb.push(dict[oldKey], curNumCodeBits);
-
-      // GIF spec defines a maximum code value of 4095 (0xFFF)
-      if (nextCode <= 0xfff) {
-        dict[concatedCodesKey] = nextCode;
-        if (nextCode === 1 << curNumCodeBits) curNumCodeBits++;
-        nextCode++;
-      } else {
-        bb.push(clearCode, curNumCodeBits);
-        resetAllParamsAndTablesToStartUpState();
-        dict[dictKey] = code;
-      }
-      concatedCodesKey = dictKey;
-    }
-  }
-  bb.push(dict[concatedCodesKey], curNumCodeBits);
-  bb.push(endOfInfoCode, curNumCodeBits);
-  return bb.flush();
-}
-/*
- ===end GifWriter.js===
- */

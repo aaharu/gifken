@@ -10,7 +10,7 @@ import { GifFrame } from "./GifFrame";
 import { GifVersion } from "./GifVersion";
 
 export class GifParser {
-  static readHeader(gif: GifImage, data: DataView): number {
+  public static readHeader(gif: GifImage, data: DataView): number {
     var version = String.fromCharCode(
       data.getUint8(0),
       data.getUint8(1),
@@ -45,12 +45,17 @@ export class GifParser {
     return 13 + 3 * tableSize;
   }
 
-  static readBlock(gif: GifImage, data: DataView, offset: number): number {
+  public static readBlock(
+    gif: GifImage,
+    data: DataView,
+    offset: number
+  ): number {
     var separator = data.getUint8(offset);
     if (separator === 0x3b) {
       return -1;
     }
     if (separator === 0x21) {
+      let frame: GifFrame;
       // Extension block
       var label = data.getUint8(offset + 1);
       if (label === 0xf9) {
@@ -79,7 +84,7 @@ export class GifParser {
       }
     }
     if (separator === 0x2c) {
-      var frame: GifFrame;
+      let frame: GifFrame;
       if (gif.frames[gif.frameIndex2] === undefined) {
         frame = new GifFrame();
         offset = this.readImageBlock(frame, data, offset);
@@ -95,7 +100,7 @@ export class GifParser {
     return -1;
   }
 
-  static readImageBlock(
+  public static readImageBlock(
     frame: GifFrame,
     data: DataView,
     offset: number
@@ -131,7 +136,7 @@ export class GifParser {
         break;
       }
       dataList.push(
-        new Uint8Array((<any>data.buffer).slice(offset, offset + blockSize))
+        new Uint8Array(data.buffer.slice(offset, offset + blockSize))
       );
       offset += blockSize;
     }
@@ -146,7 +151,7 @@ export class GifParser {
     return offset;
   }
 
-  static readApplicationExtensionBlock(
+  public static readApplicationExtensionBlock(
     gif: GifImage,
     data: DataView,
     offset: number
@@ -187,7 +192,10 @@ export class GifParser {
     return offset;
   }
 
-  static readCommentExtensionBlock(data: DataView, offset: number): number {
+  public static readCommentExtensionBlock(
+    data: DataView,
+    offset: number
+  ): number {
     // skip
     offset += 2;
     while (true) {
@@ -200,7 +208,7 @@ export class GifParser {
     return offset;
   }
 
-  static readGraphicControlExtensionBlock(
+  public static readGraphicControlExtensionBlock(
     frame: GifFrame,
     data: DataView,
     offset: number
@@ -212,7 +220,10 @@ export class GifParser {
     return offset + 8;
   }
 
-  static readPlainTextExtensionBlock(data: DataView, offset: number): number {
+  public static readPlainTextExtensionBlock(
+    data: DataView,
+    offset: number
+  ): number {
     // skip
     offset += 2;
     while (true) {
