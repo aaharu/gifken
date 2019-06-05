@@ -6,17 +6,26 @@
  */
 
 export class GifColor {
+  public r: number;
+  public g: number;
+  public b: number;
+
   /**
    * GifColor
    */
-  constructor(public r: number, public g: number, public b: number) {}
+  public constructor(r: number, g: number, b: number) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+  }
 
-  /** TODO
-    static valueOf(color:string) {
-    }
-    */
+  /**
+   * TODO:
+  static valueOf(color:string) {
+  }
+   */
 
-  static createColorTable(colors: GifColor[]): Uint8Array {
+  public static createColorTable(colors: GifColor[]): Uint8Array {
     var numbers: number[] = [];
     for (var i = 1; i <= 8; ++i) {
       var d = (i << 1) - colors.length;

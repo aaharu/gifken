@@ -1,6 +1,16 @@
-* text=auto
-*.yaml text eol=lf
-*.yml text eol=lf
-*.json text eol=lf
-*.js text eol=lf
-*.ts text eol=lf
+* text=auto eol=lf
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.tiff binary
+
+# Fonts
+*.oft binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary

@@ -11,7 +11,7 @@ export class GifPresenter {
    *
    * @return {Blob} BLOB
    */
-  static writeToBlob(bytes: Uint8Array[]): Blob {
+  public static writeToBlob(bytes: Uint8Array[]): Blob {
     return new Blob(bytes, { type: "image/gif" });
   }
 
@@ -20,15 +20,17 @@ export class GifPresenter {
    *
    * @return {string} Data-URL string
    */
-  static writeToDataUrl(bytes: Uint8Array[]): string {
+  public static writeToDataUrl(bytes: Uint8Array[]): string {
     let str = "";
-    bytes.forEach(buffer => {
-      const codes: number[] = [];
-      for (let i = 0, l = buffer.byteLength; i < l; ++i) {
-        codes.push(buffer[i]);
+    bytes.forEach(
+      (buffer): void => {
+        const codes: number[] = [];
+        for (let i = 0, l = buffer.byteLength; i < l; ++i) {
+          codes.push(buffer[i]);
+        }
+        str += String.fromCharCode.apply(null, codes);
       }
-      str += String.fromCharCode.apply(null, codes);
-    });
+    );
     return "data:image/gif;base64," + btoa(str);
   }
 }

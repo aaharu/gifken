@@ -28,9 +28,9 @@ export class GifFrame {
   /**
    * GifFrame
    */
-  constructor() {}
+  public constructor() {}
 
-  static init(width: number, height: number) {
+  public static init(width: number, height: number): GifFrame {
     var frame = new GifFrame();
     frame.transparentFlag = false;
     frame.delayCentiSeconds = 0;
@@ -45,88 +45,88 @@ export class GifFrame {
     return frame;
   }
 
-  public decompress() {
-    this.pixelData = lzwDecode(
+  public decompress(): void {
+    this.pixelData = this.lzwDecode(
       this.lzwCode,
       this.compressedData,
       this.width * this.height
     );
   }
-}
 
-/*
- ===begin jsgif===
- */
-var lzwDecode = function(
-  minCodeSize: number,
-  data: Uint8Array,
-  len: number
-): Uint8Array {
-  var pos = 0; // Maybe this streaming thing should be merged with the Stream?
+  /*
+   ===begin jsgif===
+   */
+  private lzwDecode(
+    minCodeSize: number,
+    data: Uint8Array,
+    len: number
+  ): Uint8Array {
+    var pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-  var readCode = function(size: number): number {
+    var readCode = function(size: number): number {
+      var code = 0;
+      for (var i = 0; i < size; ++i) {
+        if (data[pos >> 3] & (1 << (pos & 7))) {
+          code |= 1 << i;
+        }
+        ++pos;
+      }
+      return code;
+    };
+
+    var output = new Uint8Array(len);
+
+    var clearCode = 1 << minCodeSize;
+    var eoiCode = clearCode + 1;
+
+    var codeSize = minCodeSize + 1;
+
+    var dict: any[] = [];
+
+    var clear = (): void => {
+      dict = [];
+      codeSize = minCodeSize + 1;
+      for (let i = 0; i < clearCode; ++i) {
+        dict[i] = [i];
+      }
+      dict[clearCode] = [];
+      dict[eoiCode] = null;
+    };
+
     var code = 0;
-    for (var i = 0; i < size; ++i) {
-      if (data[pos >> 3] & (1 << (pos & 7))) {
-        code |= 1 << i;
+    var last: number;
+    var offset = 0;
+
+    while (true) {
+      last = code;
+      code = readCode(codeSize);
+
+      if (code === clearCode) {
+        clear();
+        continue;
       }
-      ++pos;
-    }
-    return code;
-  };
+      if (code === eoiCode) break;
 
-  var output = new Uint8Array(len);
-
-  var clearCode = 1 << minCodeSize;
-  var eoiCode = clearCode + 1;
-
-  var codeSize = minCodeSize + 1;
-
-  var dict: any[] = [];
-
-  var clear = function() {
-    dict = [];
-    codeSize = minCodeSize + 1;
-    for (var i = 0; i < clearCode; ++i) {
-      dict[i] = [i];
-    }
-    dict[clearCode] = [];
-    dict[eoiCode] = null;
-  };
-
-  var code = 0;
-  var last: number;
-  var offset = 0;
-
-  while (true) {
-    last = code;
-    code = readCode(codeSize);
-
-    if (code === clearCode) {
-      clear();
-      continue;
-    }
-    if (code === eoiCode) break;
-
-    if (code < dict.length) {
-      if (last !== clearCode) {
-        dict.push(dict[last].concat(dict[code][0]));
+      if (code < dict.length) {
+        if (last !== clearCode) {
+          dict.push(dict[last].concat(dict[code][0]));
+        }
+      } else {
+        if (code !== dict.length) throw new Error("Invalid LZW code.");
+        dict.push(dict[last].concat(dict[last][0]));
       }
-    } else {
-      if (code !== dict.length) throw new Error("Invalid LZW code.");
-      dict.push(dict[last].concat(dict[last][0]));
-    }
-    output.set(dict[code], offset);
-    offset += dict[code].length;
+      output.set(dict[code], offset);
+      offset += dict[code].length;
 
-    if (dict.length === 1 << codeSize && codeSize < 12) {
-      // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
-      codeSize++;
+      if (dict.length === 1 << codeSize && codeSize < 12) {
+        // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
+        codeSize++;
+      }
     }
+
+    return output;
   }
-
-  return output;
-};
-/*
- ===end jsgif===
- */
+  /*
+   ===end jsgif===
+   */
+}
