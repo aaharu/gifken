@@ -22,15 +22,13 @@ export class GifPresenter {
    */
   public static writeToDataUrl(bytes: Uint8Array[]): string {
     let str = "";
-    bytes.forEach(
-      (buffer): void => {
-        const codes: number[] = [];
-        for (let i = 0, l = buffer.byteLength; i < l; ++i) {
-          codes.push(buffer[i]);
-        }
-        str += String.fromCharCode.apply(null, codes);
+    bytes.forEach((buffer): void => {
+      const codes: number[] = [];
+      for (let i = 0, l = buffer.byteLength; i < l; ++i) {
+        codes.push(buffer[i]);
       }
-    );
+      str += String.fromCharCode.apply(null, codes);
+    });
     return "data:image/gif;base64," + btoa(str);
   }
 }
