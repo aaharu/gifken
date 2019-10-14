@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/aaharu/gifken/compare/v1.0.1...v2.0.0) (2019-10-14)
+
+
+### Bug Fixes
+
+* fix README ([812cf8a](https://github.com/aaharu/gifken/commit/812cf8a656d9a42ed6f8c4ac733736367957b108))
+* output `d.ts` files ([39e4a1c](https://github.com/aaharu/gifken/commit/39e4a1c767e2962a6e371ce07908164ea5c75aa5))
+
 ## [2.0.0] - 2019-10-14
 
 ### Changed
