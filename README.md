@@ -10,8 +10,6 @@
 <div id="content"></div>
 <script src="https://unpkg.com/gifken/gifken.js"></script>
 <script type="application/javascript">
-const gifken = require("gifken");
-
 window.onload = () => {
     var newgif = new gifken.Gif();
     newgif.width = 100;
@@ -115,19 +113,6 @@ fs.writeFile(
 
 - [API Docs](http://aaharu.github.io/gifken/docs/)
 
-## Directories
-
-```
-gifken
-├── build                     build results
-├── node_modules
-├── sample                    sample software using gifken
-│   ├── chromeextension
-│   └── node
-├── src                       source directory
-└── test
-```
-
 ## Build
 
 To build gifken, following tools are required
@@ -141,6 +126,10 @@ cd gifken
 npm install
 npm run-script build
 ```
+
+## Similar Projects
+
+* [omggif](https://github.com/deanm/omggif)
 
 ## License
 
