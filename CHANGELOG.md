@@ -10,11 +10,9 @@ All notable changes to this project will be documented in this file. See [standa
 * fix README ([812cf8a](https://github.com/aaharu/gifken/commit/812cf8a656d9a42ed6f8c4ac733736367957b108))
 * output `d.ts` files ([39e4a1c](https://github.com/aaharu/gifken/commit/39e4a1c767e2962a6e371ce07908164ea5c75aa5))
 
-## [2.0.0] - 2019-10-14
-
 ### Changed
 
-- REBUILD
+* REBUILD
 
 ## [1.0.1] - 2019-06-05
 
@@ -53,7 +51,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## 0.5.0
 
-[2.0.0]: https://github.com/aaharu/gifken/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/aaharu/gifken/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/aaharu/gifken/compare/v0.5.3...v1.0.0
 [0.5.3]: https://github.com/aaharu/gifken/compare/v0.5.2...v0.5.3
