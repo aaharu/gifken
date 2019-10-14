@@ -1,6 +1,6 @@
 {
   "name": "gifken",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "TypeScript / JavaScript GIF parser and maker",
   "main": "lib/gifken.cjs.js",
   "module": "lib/gifken.esm.js",
