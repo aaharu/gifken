@@ -12,10 +12,11 @@
     "dev": "rollup -c -w",
     "test": "jest",
     "pretest": "rimraf coverage",
-    "clean": "rimraf lib coverage docs gifken.js",
+    "clean": "rimraf lib coverage docs",
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --fix --ext .ts .",
-    "doc": "typedoc --target es2015 --module commonjs --out docs --readme README.md src && node d.js"
+    "doc": "typedoc --target es2015 --module commonjs --out docs --readme README.md src && node d.js",
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
     "node": ">=8.0.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.6.3",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.7.12",
     "@typescript-eslint/eslint-plugin": "^1.13.0",
@@ -48,73 +50,22 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.24.3",
+    "standard-version": "^7.0.0",
     "ts-jest": "^24.1.0",
     "typedoc": "^0.15.0",
     "typescript": "^3.6.4"
   },
   "files": [
-    "lib",
-    "gifken.js"
+    "lib"
   ],
   "keywords": [
     "animated-gif",
     "gif"
   ],
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfig": {
-          "typeRoots": [
-            "node_modules/@types"
-          ]
-        }
-      }
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ],
-    "transform": {
-      "\\.(ts|tsx)$": "ts-jest"
-    },
-    "testMatch": [
-      "**/test/**/*.ts?(x)"
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.ts?(x)"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:@typescript-eslint/recommended",
-      "prettier/@typescript-eslint",
-      "plugin:prettier/recommended"
-    ],
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "env": {
-      "node": true,
-      "mocha": true,
-      "browser": true,
-      "es6": true
-    },
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "sourceType": "module",
-      "project": "./tsconfig.json"
-    },
-    "rules": {
-      "no-unused-vars": "off",
-      "no-constant-condition": "off",
-      "@typescript-eslint/adjacent-overload-signatures": "error"
-    }
-  },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
