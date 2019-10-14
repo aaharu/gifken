@@ -1,4 +1,4 @@
-const gifken = require("../../lib/gifken"),
+const gifken = require("../../"),
   fs = require("fs"),
   path = require("path");
 

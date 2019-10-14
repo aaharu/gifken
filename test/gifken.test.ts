@@ -1,10 +1,8 @@
 "use strict";
 
-import { GifColor } from "../src/GifColor";
-import { GifFrame } from "../src/GifFrame";
-import { Gif } from "../src/Gif";
-import * as fs from "fs";
-import * as path from "path";
+import { Gif, GifColor, GifFrame } from "../src";
+import fs from "fs";
+import path from "path";
 
 describe("create a GIF image", () => {
   let gif: Gif;
