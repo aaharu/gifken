@@ -8,7 +8,7 @@
 
 ```html
 <div id="content"></div>
-<script src="https://unpkg.com/gifken/gifken.js"></script>
+<script src="https://unpkg.com/gifken@2.0.0/lib/gifken.umd.js"></script>
 <script type="application/javascript">
 window.onload = () => {
     var newgif = new gifken.Gif();
