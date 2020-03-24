@@ -23,7 +23,7 @@ describe("create a GIF image", () => {
       new GifColor(0, 255, 255),
       new GifColor(255, 0, 255),
       new GifColor(255, 255, 0),
-      new GifColor(255, 255, 255)
+      new GifColor(255, 255, 255),
     ]);
     gif.frames = [GifFrame.init(gif.width, gif.height)];
     for (let i = 0; i < gif.frames[0].pixelData.length; ++i) {
@@ -34,7 +34,7 @@ describe("create a GIF image", () => {
       fs.writeFile(
         path.resolve(__dirname, "sample.gif"),
         Buffer.from(buffer),
-        err => {
+        (err) => {
           if (err) throw err;
         }
       );

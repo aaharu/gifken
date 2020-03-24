@@ -58,7 +58,7 @@ export class GifFrame {
   ): Uint8Array {
     let pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-    const readCode = function(size: number): number {
+    const readCode = function (size: number): number {
       let code = 0;
       for (let i = 0; i < size; ++i) {
         if (data[pos >> 3] & (1 << (pos & 7))) {

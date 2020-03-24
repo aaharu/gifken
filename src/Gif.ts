@@ -76,7 +76,7 @@ export class Gif implements GifImage {
     this.pixelAspectRatio = 0; // not supported
     this.globalColorTable = GifColor.createColorTable([
       new GifColor(0, 0, 0),
-      new GifColor(255, 255, 255)
+      new GifColor(255, 255, 255),
     ]);
   }
 
@@ -237,7 +237,7 @@ export class Gif implements GifImage {
     }
 
     // write image data
-    gif.frames.forEach(frame => {
+    gif.frames.forEach((frame) => {
       const image = new DataView(new ArrayBuffer(18));
       image.setUint8(0, 0x21);
       image.setUint8(1, 0xf9);
@@ -311,7 +311,7 @@ export class Gif implements GifImage {
     const output = Gif.writeToArrayBuffer(this);
 
     const arr: number[] = [];
-    output.forEach(buffer => {
+    output.forEach((buffer) => {
       for (let i = 0, l = buffer.byteLength; i < l; ++i) {
         arr.push(buffer[i]);
       }
@@ -364,7 +364,7 @@ export class Gif implements GifImage {
         res.push(gif);
       });
     } else {
-      this.frames.forEach(frame => {
+      this.frames.forEach((frame) => {
         const gif = new Gif();
         gif.version = this._version;
         gif.width = this._width;

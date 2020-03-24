@@ -13,7 +13,7 @@ const gifken = {
   GifFrame,
   GifParser,
   GifVersion,
-  GifPresenter
+  GifPresenter,
 };
 
 export default gifken;

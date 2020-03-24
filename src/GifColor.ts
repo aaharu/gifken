@@ -33,7 +33,7 @@ export class GifColor {
         colors.push(new GifColor(255, 255, 255));
       }
     }
-    colors.forEach(color => {
+    colors.forEach((color) => {
       numbers.push(color.r);
       numbers.push(color.g);
       numbers.push(color.b);
