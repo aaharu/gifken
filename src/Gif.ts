@@ -55,8 +55,8 @@ export class Gif implements GifImage {
    * if this is 0, it is infinite.
    */
   private _loopCount: number;
-  public frameIndex1: number = 0;
-  public frameIndex2: number = 0;
+  public frameIndex1 = 0;
+  public frameIndex2 = 0;
 
   /**
    * Gif
@@ -86,9 +86,9 @@ export class Gif implements GifImage {
    * @return {Gif} parsed gif object
    */
   public static parse(buffer: ArrayBuffer): Gif {
-    var gif = new Gif(true);
-    var data = new DataView(buffer);
-    var offset = GifParser.readHeader(gif, data);
+    const gif = new Gif(true);
+    const data = new DataView(buffer);
+    let offset = GifParser.readHeader(gif, data);
     while (true) {
       offset = GifParser.readBlock(gif, data, offset);
       if (offset === -1) {
@@ -134,7 +134,7 @@ export class Gif implements GifImage {
     this._height = height;
   }
 
-  public get globalColorTable() {
+  public get globalColorTable(): Uint8Array {
     return this._globalColorTable;
   }
 
@@ -172,10 +172,10 @@ export class Gif implements GifImage {
    * @return {Uint8Array[]} array of Uint8Array
    */
   public static writeToArrayBuffer(gif: Gif): Uint8Array[] {
-    var output: Uint8Array[] = [];
+    const output: Uint8Array[] = [];
 
     // write header
-    var header = new DataView(new ArrayBuffer(13));
+    const header = new DataView(new ArrayBuffer(13));
     header.setUint8(0, 71); // G
     header.setUint8(1, 73); // I
     header.setUint8(2, 70); // F
@@ -188,11 +188,11 @@ export class Gif implements GifImage {
     header.setUint8(5, 97); // a
     header.setUint16(6, gif.width, true);
     header.setUint16(8, gif.height, true);
-    var packed = 0;
-    var size = gif.globalTableSize;
+    let packed = 0;
+    let size = gif.globalTableSize;
     if (size > 0) {
       packed |= 128;
-      var count = 0;
+      let count = 0;
       do {
         size = size >> 1;
         ++count;
@@ -214,7 +214,7 @@ export class Gif implements GifImage {
 
     // write extension
     if (gif.isLoop) {
-      var appExt = new DataView(new ArrayBuffer(19));
+      const appExt = new DataView(new ArrayBuffer(19));
       appExt.setUint8(0, 0x21);
       appExt.setUint8(1, 0xff);
       appExt.setUint8(2, 0x0b);
@@ -238,7 +238,7 @@ export class Gif implements GifImage {
 
     // write image data
     gif.frames.forEach(frame => {
-      var image = new DataView(new ArrayBuffer(18));
+      const image = new DataView(new ArrayBuffer(18));
       image.setUint8(0, 0x21);
       image.setUint8(1, 0xf9);
       image.setUint8(2, 0x04);
@@ -257,8 +257,8 @@ export class Gif implements GifImage {
       image.setUint16(13, frame.width, true);
       image.setUint16(15, frame.height, true);
       if (frame.localTableSize > 0) {
-        var count = 0;
-        var size = frame.localTableSize;
+        let count = 0;
+        let size = frame.localTableSize;
         do {
           size = size >> 1;
           ++count;
@@ -275,7 +275,7 @@ export class Gif implements GifImage {
       if (frame.compressedData === undefined && frame.pixelData === undefined) {
         throw new Error("no image data");
       }
-      var idx = 0,
+      let idx = 0,
         compressedBytes = frame.compressedData;
       if (compressedBytes instanceof Array) {
         compressedBytes = new Uint8Array(compressedBytes);
@@ -284,7 +284,7 @@ export class Gif implements GifImage {
           compressedBytes ||
           new Uint8Array(Gif.compressWithLZW(frame.pixelData, frame.lzwCode));
       }
-      var l = compressedBytes.length;
+      const l = compressedBytes.length;
       while (true) {
         if (l > idx + 255) {
           output.push(new Uint8Array([255]));
@@ -292,7 +292,7 @@ export class Gif implements GifImage {
           idx += 255;
           continue;
         }
-        var bytes = compressedBytes.subarray(idx);
+        const bytes = compressedBytes.subarray(idx);
         output.push(new Uint8Array([bytes.byteLength]));
         output.push(bytes);
         break;
@@ -307,12 +307,12 @@ export class Gif implements GifImage {
   /**
    * TODO
    **/
-  public writeToArray(): any {
-    var output = Gif.writeToArrayBuffer(this);
+  public writeToArray(): number[] {
+    const output = Gif.writeToArrayBuffer(this);
 
-    var arr: any = [];
+    const arr: number[] = [];
     output.forEach(buffer => {
-      for (var i = 0, l = buffer.byteLength; i < l; ++i) {
+      for (let i = 0, l = buffer.byteLength; i < l; ++i) {
         arr.push(buffer[i]);
       }
     });
@@ -325,10 +325,10 @@ export class Gif implements GifImage {
    * @return {Gif[]} array of Gif object
    */
   public split(overwrite: boolean): Gif[] {
-    var res: Gif[] = [];
+    const res: Gif[] = [];
     if (overwrite) {
       this.frames.forEach((frame, index) => {
-        var gif = new Gif();
+        const gif = new Gif();
         gif.version = this._version;
         gif.width = this._width;
         gif.height = this._height;
@@ -344,15 +344,15 @@ export class Gif implements GifImage {
           if (this.frames[index - 1].pixelData === undefined) {
             this.frames[index - 1].decompress();
           }
-          var edited = false;
-          for (var i = 0, l = frame.pixelData.length; i < l; ++i) {
+          let edited = false;
+          for (let i = 0, l = frame.pixelData.length; i < l; ++i) {
             if (frame.pixelData[i] === frame.transparentColorIndex) {
               frame.pixelData[i] = this.frames[index - 1].pixelData[i];
               edited = true;
             }
           }
           if (edited) {
-            var compressedBytes = Gif.compressWithLZW(
+            const compressedBytes = Gif.compressWithLZW(
               frame.pixelData,
               frame.lzwCode
             );
@@ -365,7 +365,7 @@ export class Gif implements GifImage {
       });
     } else {
       this.frames.forEach(frame => {
-        var gif = new Gif();
+        const gif = new Gif();
         gif.version = this._version;
         gif.width = this._width;
         gif.height = this._height;
@@ -387,7 +387,7 @@ export class Gif implements GifImage {
    * @return {Gif} Gif object
    */
   public playback(overwrite: boolean): Gif {
-    var res = new Gif();
+    const res = new Gif();
     if (overwrite) {
       this.frames.forEach((frame, index) => {
         if (index !== 0 && frame.transparentFlag) {
@@ -397,15 +397,15 @@ export class Gif implements GifImage {
           if (this.frames[index - 1].pixelData === undefined) {
             this.frames[index - 1].decompress();
           }
-          var edited = false;
-          for (var i = 0, l = frame.pixelData.length; i < l; ++i) {
+          let edited = false;
+          for (let i = 0, l = frame.pixelData.length; i < l; ++i) {
             if (frame.pixelData[i] === frame.transparentColorIndex) {
               frame.pixelData[i] = this.frames[index - 1].pixelData[i];
               edited = true;
             }
           }
           if (edited) {
-            var compressedBytes = Gif.compressWithLZW(
+            const compressedBytes = Gif.compressWithLZW(
               frame.pixelData,
               frame.lzwCode
             );
@@ -439,7 +439,7 @@ export class Gif implements GifImage {
     // `numBits` is LZW-initial code size, which indicates how many bits are needed
     // to represents actual code.
 
-    var bb = new GifCompressedCodesToByteArrayConverter();
+    const bb = new GifCompressedCodesToByteArrayConverter();
 
     // GIF spec says: A special Clear code is defined which resets all
     // compression/decompression parameters and tables to a start-up state.
@@ -449,18 +449,18 @@ export class Gif implements GifImage {
     // stream and therefore requires the LZW algorithm to process succeeding
     // codes as if a new data stream was starting. Encoders should
     // output a Clear code as the first code of each image data stream.
-    var clearCode = 1 << numBits;
+    const clearCode = 1 << numBits;
     // GIF spec says: An End of Information code is defined that explicitly
     // indicates the end of the image data stream. LZW processing terminates
     // when this code is encountered. It must be the last code output by the
     // encoder for an image. The value of this code is <Clear code>+1.
-    var endOfInfoCode = clearCode + 1;
+    const endOfInfoCode = clearCode + 1;
 
-    var nextCode = endOfInfoCode + 1;
-    var curNumCodeBits = numBits + 1;
-    var dict = Object.create(null);
+    let nextCode = endOfInfoCode + 1;
+    let curNumCodeBits = numBits + 1;
+    let dict = Object.create(null);
 
-    function resetAllParamsAndTablesToStartUpState() {
+    function resetAllParamsAndTablesToStartUpState(): void {
       // GIF spec says: The first available compression code value is <Clear code>+2.
       nextCode = endOfInfoCode + 1;
       curNumCodeBits = numBits + 1;
@@ -470,13 +470,13 @@ export class Gif implements GifImage {
     resetAllParamsAndTablesToStartUpState();
     bb.push(clearCode, curNumCodeBits); // clear code at first
 
-    var concatedCodesKey = "";
-    for (var i = 0, len = actualCodes.length; i < len; ++i) {
-      var code = actualCodes[i];
-      var dictKey = String.fromCharCode(code);
+    let concatedCodesKey = "";
+    for (let i = 0, len = actualCodes.length; i < len; ++i) {
+      const code = actualCodes[i];
+      const dictKey = String.fromCharCode(code);
       if (!(dictKey in dict)) dict[dictKey] = code;
 
-      var oldKey = concatedCodesKey;
+      const oldKey = concatedCodesKey;
       concatedCodesKey += dictKey;
       if (!(concatedCodesKey in dict)) {
         bb.push(dict[oldKey], curNumCodeBits);

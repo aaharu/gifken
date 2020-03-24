@@ -1,5 +1,3 @@
-"use strict";
-
 import { Gif, GifColor, GifFrame } from "../src";
 import fs from "fs";
 import path from "path";
@@ -31,8 +29,8 @@ describe("create a GIF image", () => {
     for (let i = 0; i < gif.frames[0].pixelData.length; ++i) {
       gif.frames[0].pixelData[i] = i % 11;
     }
-    let tmp = () => {
-      let buffer = gif.writeToArray();
+    const tmp = (): void => {
+      const buffer = gif.writeToArray();
       fs.writeFile(
         path.resolve(__dirname, "sample.gif"),
         Buffer.from(buffer),

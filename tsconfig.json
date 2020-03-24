@@ -28,10 +28,11 @@
     "skipDefaultLibCheck": true,
     "pretty": true,
     "noEmitOnError": true,
-    "declaration": true
+    "declaration": true,
+    "types": ["node", "jest"]
   },
   "include": [
     "src/**/*.ts",
-    "gifken.ts"
+    "test/**/*.ts"
   ]
 }
