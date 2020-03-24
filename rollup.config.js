@@ -5,7 +5,7 @@ import pkg from "./package.json";
 
 export default [
   {
-    input: "src/browser.ts",
+    input: "src/index.ts",
     output: {
       name: "gifken",
       file: pkg.browser,
@@ -15,7 +15,7 @@ export default [
   },
   {
     input: "src/index.ts",
-    plugins: [typescript()],
+    plugins: [commonjs(), typescript()],
     output: [
       { file: pkg.main, format: "cjs" },
       { file: pkg.module, format: "es" }

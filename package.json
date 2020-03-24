@@ -30,6 +30,9 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "dependencies": {
+    "browser-or-node": "^1.2.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
