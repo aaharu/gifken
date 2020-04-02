@@ -25,7 +25,7 @@ export class GifCompressedCodesToByteArrayConverter {
     this.__remVal = 0;
   }
 
-  public push(code: any, numBits: any) {
+  public push(code: number, numBits: number): void {
     while (numBits > 0) {
       this.__remVal = ((code << this.__remNumBits) & 0xff) + this.__remVal;
       if (numBits + this.__remNumBits >= 8) {
@@ -41,11 +41,11 @@ export class GifCompressedCodesToByteArrayConverter {
     }
   }
 
-  public flush() {
+  public flush(): number[] {
     this.push(0, 8);
     this.__remNumBits = 0;
     this.__remVal = 0;
-    var out = this.__out;
+    const out = this.__out;
     this.__out = [];
     return out;
   }

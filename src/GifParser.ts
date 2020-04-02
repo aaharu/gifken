@@ -11,7 +11,7 @@ import { GifVersion } from "./GifVersion";
 
 export class GifParser {
   public static readHeader(gif: GifImage, data: DataView): number {
-    var version = String.fromCharCode(
+    const version = String.fromCharCode(
       data.getUint8(0),
       data.getUint8(1),
       data.getUint8(2),
@@ -26,9 +26,9 @@ export class GifParser {
     }
     gif.width = data.getUint16(6, true);
     gif.height = data.getUint16(8, true);
-    var packed = data.getUint8(10); // Global Color Table Flag(1 bit) Color Resolution(3 bits) Sort Flag(1 bit) Size of Global Color Table(3 bits)
-    var tableFlag = packed & 128;
-    var tableSize;
+    const packed = data.getUint8(10); // Global Color Table Flag(1 bit) Color Resolution(3 bits) Sort Flag(1 bit) Size of Global Color Table(3 bits)
+    const tableFlag = packed & 128;
+    let tableSize;
     if (tableFlag !== 128) {
       tableSize = 0;
     } else {
@@ -50,14 +50,14 @@ export class GifParser {
     data: DataView,
     offset: number
   ): number {
-    var separator = data.getUint8(offset);
+    const separator = data.getUint8(offset);
     if (separator === 0x3b) {
       return -1;
     }
     if (separator === 0x21) {
       let frame: GifFrame;
       // Extension block
-      var label = data.getUint8(offset + 1);
+      const label = data.getUint8(offset + 1);
       if (label === 0xf9) {
         if (gif.frames[gif.frameIndex1] === undefined) {
           frame = new GifFrame();
@@ -113,8 +113,8 @@ export class GifParser {
     offset += 2;
     frame.height = data.getUint16(offset, true);
     offset += 2;
-    var packed = data.getUint8(offset++);
-    var tableFlag = packed & 128;
+    const packed = data.getUint8(offset++);
+    const tableFlag = packed & 128;
     if (tableFlag === 128) {
       frame.localTableSize = 1 << ((packed & 7) + 1);
       frame.localColorTable = new Uint8Array(
@@ -127,10 +127,10 @@ export class GifParser {
       frame.localTableSize = 0;
     }
     frame.lzwCode = data.getUint8(offset++);
-    var dataList = new Array<Uint8Array>();
-    var totalSize = 0;
+    const dataList = new Array<Uint8Array>();
+    let totalSize = 0;
     while (true) {
-      var blockSize = data.getUint8(offset++);
+      const blockSize = data.getUint8(offset++);
       totalSize += blockSize;
       if (blockSize === 0) {
         break;
@@ -140,10 +140,10 @@ export class GifParser {
       );
       offset += blockSize;
     }
-    var bytes = new Uint8Array(totalSize);
+    const bytes = new Uint8Array(totalSize);
     bytes.set(dataList[0], 0);
-    var len = dataList[0].byteLength;
-    for (var i = 1, l = dataList.length; i < l; ++i) {
+    let len = dataList[0].byteLength;
+    for (let i = 1, l = dataList.length; i < l; ++i) {
       bytes.set(dataList[i], len);
       len += dataList[i].byteLength;
     }
@@ -160,7 +160,7 @@ export class GifParser {
     if (data.getUint8(offset++) !== 0x0b) {
       throw new Error("faild: _readApplicationExtensionBlock");
     }
-    var app = String.fromCharCode(
+    const app = String.fromCharCode(
       data.getUint8(offset++),
       data.getUint8(offset++),
       data.getUint8(offset++),
@@ -183,7 +183,7 @@ export class GifParser {
       offset += 2;
     }
     while (true) {
-      var blockSize = data.getUint8(offset++);
+      const blockSize = data.getUint8(offset++);
       if (blockSize === 0) {
         break;
       }
@@ -199,7 +199,7 @@ export class GifParser {
     // skip
     offset += 2;
     while (true) {
-      var blockSize = data.getUint8(offset++);
+      const blockSize = data.getUint8(offset++);
       if (blockSize === 0) {
         break;
       }
@@ -213,7 +213,7 @@ export class GifParser {
     data: DataView,
     offset: number
   ): number {
-    var packed = data.getUint8(offset + 3);
+    const packed = data.getUint8(offset + 3);
     frame.transparentFlag = (packed & 1) === 1;
     frame.delayCentiSeconds = data.getUint16(offset + 4, true);
     frame.transparentColorIndex = data.getUint8(offset + 6);
@@ -227,7 +227,7 @@ export class GifParser {
     // skip
     offset += 2;
     while (true) {
-      var blockSize = data.getUint8(offset++);
+      const blockSize = data.getUint8(offset++);
       if (blockSize === 0) {
         break;
       }

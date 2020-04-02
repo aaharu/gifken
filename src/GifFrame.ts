@@ -25,13 +25,8 @@ export class GifFrame {
   public compressedData: Uint8Array;
   public pixelData: Uint8Array; // decompressed
 
-  /**
-   * GifFrame
-   */
-  public constructor() {}
-
   public static init(width: number, height: number): GifFrame {
-    var frame = new GifFrame();
+    const frame = new GifFrame();
     frame.transparentFlag = false;
     frame.delayCentiSeconds = 0;
     frame.transparentColorIndex = 0;
@@ -61,11 +56,11 @@ export class GifFrame {
     data: Uint8Array,
     len: number
   ): Uint8Array {
-    var pos = 0; // Maybe this streaming thing should be merged with the Stream?
+    let pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-    var readCode = function(size: number): number {
-      var code = 0;
-      for (var i = 0; i < size; ++i) {
+    const readCode = function (size: number): number {
+      let code = 0;
+      for (let i = 0; i < size; ++i) {
         if (data[pos >> 3] & (1 << (pos & 7))) {
           code |= 1 << i;
         }
@@ -74,28 +69,27 @@ export class GifFrame {
       return code;
     };
 
-    var output = new Uint8Array(len);
+    const output = new Uint8Array(len);
 
-    var clearCode = 1 << minCodeSize;
-    var eoiCode = clearCode + 1;
+    const clearCode = 1 << minCodeSize;
+    const eoiCode = clearCode + 1;
 
-    var codeSize = minCodeSize + 1;
+    let codeSize = minCodeSize + 1;
 
-    var dict: any[] = [];
+    let dict: number[][] = [];
 
-    var clear = (): void => {
+    const clear = (): void => {
       dict = [];
       codeSize = minCodeSize + 1;
       for (let i = 0; i < clearCode; ++i) {
         dict[i] = [i];
       }
       dict[clearCode] = [];
-      dict[eoiCode] = null;
     };
 
-    var code = 0;
-    var last: number;
-    var offset = 0;
+    let code = 0;
+    let last: number;
+    let offset = 0;
 
     while (true) {
       last = code;

@@ -26,14 +26,14 @@ export class GifColor {
    */
 
   public static createColorTable(colors: GifColor[]): Uint8Array {
-    var numbers: number[] = [];
-    for (var i = 1; i <= 8; ++i) {
-      var d = (i << 1) - colors.length;
-      for (var j = 0; j < d; ++j) {
+    const numbers: number[] = [];
+    for (let i = 1; i <= 8; ++i) {
+      const d = (i << 1) - colors.length;
+      for (let j = 0; j < d; ++j) {
         colors.push(new GifColor(255, 255, 255));
       }
     }
-    colors.forEach(color => {
+    colors.forEach((color) => {
       numbers.push(color.r);
       numbers.push(color.g);
       numbers.push(color.b);
