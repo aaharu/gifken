@@ -2,19 +2,21 @@
   "name": "gifken",
   "version": "2.1.0",
   "description": "TypeScript / JavaScript GIF parser and maker",
-  "main": "lib/gifken.cjs.js",
-  "module": "lib/gifken.esm.js",
+  "main": "lib/gifken.cjs",
+  "module": "lib/gifken.mjs",
   "browser": "lib/gifken.umd.js",
-  "types": "lib/index.d.ts",
+  "types": "lib/src/index.d.ts",
+  "type": "commonjs",
   "homepage": "https://aaharu.github.io/gifken/",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "jest",
     "pretest": "rimraf coverage",
-    "clean": "rimraf lib coverage docs",
+    "clean": "rimraf lib coverage",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
     "lint:fix": "eslint --fix --ext .ts --ignore-path .gitignore .",
+    "predoc": "rimraf docs",
     "doc": "typedoc --target es2015 --module commonjs --out docs --readme README.md src && node d.js",
     "release": "standard-version"
   },
@@ -59,7 +61,8 @@
     "typescript": "^3.8.3"
   },
   "files": [
-    "lib"
+    "lib",
+    "src"
   ],
   "keywords": [
     "animated-gif",
