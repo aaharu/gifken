@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/aaharu/gifken/compare/v2.1.0...v2.1.1) (2020-04-15)
+
+
+### Bug Fixes
+
+* fix type declaration file path ([ddac071](https://github.com/aaharu/gifken/commit/ddac071df3be339059f11a31d4577b0fdc93838e))
+
 ## [2.1.0](https://github.com/aaharu/gifken/compare/v2.0.0...v2.1.0) (2020-04-02)
 
 
