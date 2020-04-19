@@ -58,7 +58,7 @@ window.onload = function () {
 
         gif.split(true).forEach(function (i) {
             var img = new Image();
-            var blob = gifken.Gif.writeToBlob(i.writeToArrayBuffer());
+            var blob = gifken.GifPresenter.writeToBlob(i.writeToArrayBuffer());
             img.src = URL.createObjectURL(blob);
             document.getElementById("content").appendChild(img);
         });
