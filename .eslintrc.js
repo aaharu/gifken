@@ -22,7 +22,7 @@ module.exports = {
     "no-unused-vars": "off",
     "no-constant-condition": "off",
     "@typescript-eslint/adjacent-overload-signatures": "error",
-    "@typescript-eslint/ban-ts-ignore": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/no-var-requires": "warn"
   }
 };
