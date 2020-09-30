@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>gifken</title>
-	<meta name="description" content="">
+	<meta name="description" content="Documentation for gifken">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -74,10 +74,10 @@
 				<a href="#create-a-gif-image-in-browser" id="create-a-gif-image-in-browser" style="color: inherit; text-decoration: none;">
 					<h3>Create a GIF image in browser</h3>
 				</a>
-				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"content"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://unpkg.com/gifken@2.0.0/lib/gifken.umd.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"application/javascript"</span>&gt;</span><span class="javascript">
-<span class="hljs-built_in">window</span>.onload = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+				<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://unpkg.com/gifken@2/lib/gifken.umd.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;application/javascript&quot;</span>&gt;</span><span class="javascript">
+<span class="hljs-built_in">window</span>.onload = <span class="hljs-function">() =&gt;</span> {
     <span class="hljs-keyword">var</span> newgif = <span class="hljs-keyword">new</span> gifken.Gif();
     newgif.width = <span class="hljs-number">100</span>;
     newgif.height = <span class="hljs-number">100</span>;
@@ -107,7 +107,7 @@
     <span class="hljs-comment">// data-URL pattern</span>
     newimg.src = gifken.GifPresenter.writeToDataUrl(newgif.writeToArrayBuffer());
 
-    <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"content"</span>).appendChild(newimg);
+    <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">&quot;content&quot;</span>).appendChild(newimg);
 };
 </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
 				<a href="#split-an-animated-gif-image-in-browser" id="split-an-animated-gif-image-in-browser" style="color: inherit; text-decoration: none;">
@@ -115,17 +115,17 @@
 				</a>
 				<pre><code class="language-javascript"><span class="hljs-built_in">window</span>.onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
     <span class="hljs-keyword">var</span> xhr = <span class="hljs-keyword">new</span> XMLHttpRequest();
-    xhr.open(<span class="hljs-string">"GET"</span>, GIF_IMAGE_URL, <span class="hljs-literal">true</span>);
-    xhr.responseType = <span class="hljs-string">"arraybuffer"</span>;
+    xhr.open(<span class="hljs-string">&quot;GET&quot;</span>, GIF_IMAGE_URL, <span class="hljs-literal">true</span>);
+    xhr.responseType = <span class="hljs-string">&quot;arraybuffer&quot;</span>;
     xhr.onload = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">e</span>) </span>{
-        <span class="hljs-keyword">var</span> arrayBuffer = e.target[<span class="hljs-string">"response"</span>];
+        <span class="hljs-keyword">var</span> arrayBuffer = e.target[<span class="hljs-string">&quot;response&quot;</span>];
         <span class="hljs-keyword">var</span> gif = gifken.Gif.parse(arrayBuffer);
 
         gif.split(<span class="hljs-literal">true</span>).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">i</span>) </span>{
             <span class="hljs-keyword">var</span> img = <span class="hljs-keyword">new</span> Image();
-            <span class="hljs-keyword">var</span> blob = gifken.Gif.writeToBlob(i.writeToArrayBuffer());
+            <span class="hljs-keyword">var</span> blob = gifken.GifPresenter.writeToBlob(i.writeToArrayBuffer());
             img.src = URL.createObjectURL(blob);
-            <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"content"</span>).appendChild(img);
+            <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">&quot;content&quot;</span>).appendChild(img);
         });
     };
     xhr.send();
@@ -134,9 +134,9 @@
 					<h3>Create a GIF image by Node.js</h3>
 				</a>
 				<pre><code class="language-bash">npm install gifken</code></pre>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> gifken = <span class="hljs-built_in">require</span>(<span class="hljs-string">"gifken"</span>),
-  fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>),
-  path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> gifken = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;gifken&quot;</span>),
+  fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;fs&quot;</span>),
+  path = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;path&quot;</span>);
 
 <span class="hljs-keyword">const</span> newgif = <span class="hljs-keyword">new</span> gifken.Gif();
 newgif.width = <span class="hljs-number">100</span>;
@@ -161,12 +161,12 @@ newgif.frames = [gifken.GifFrame.init(newgif.width, newgif.height)];
 <span class="hljs-keyword">const</span> buffer = newgif.writeToArray();
 
 fs.writeFile(
-  path.resolve(__dirname, <span class="hljs-string">"sample.gif"</span>),
+  path.resolve(__dirname, <span class="hljs-string">&quot;sample.gif&quot;</span>),
   Buffer.from(buffer),
-  err =&gt; {
+  <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> {
     <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
     <span class="hljs-comment">// eslint-disable-next-line no-console</span>
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"It's saved!"</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;It&#x27;s saved!&quot;</span>);
   }
 );</code></pre>
 				<ul>
@@ -263,6 +263,5 @@ npm run-script build</code></pre>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
