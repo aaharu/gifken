@@ -1,0 +1,5 @@
+/target
+/dist
+/nodejs
+/web
+wasm-pack.log

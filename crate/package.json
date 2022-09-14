@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run build:cargo & npm run build:bindgen:web & npm run build:bindgen:nodejs",
+    "build:cargo": "cargo build --release --target wasm32-unknown-unknown",
+    "build:bindgen:web": "wasm-bindgen --out-dir web --target web ./target/wasm32-unknown-unknown/release/gifken.wasm",
+    "build:bindgen:nodejs": "wasm-bindgen --out-dir nodejs --target nodejs ./target/wasm32-unknown-unknown/release/gifken.wasm"
+  }
+}

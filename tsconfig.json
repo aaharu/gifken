@@ -1,14 +1,9 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es2015",
-    "lib": [
-      "dom",
-      "webworker",
-      "es2016",
-      "es2017"
-    ],
-    "outDir": "lib",
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": ["dom", "webworker", "es2017"],
+    "outDir": "dist",
     "typeRoots": [],
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -29,10 +24,8 @@
     "pretty": true,
     "noEmitOnError": true,
     "declaration": true,
-    "types": ["node", "jest"]
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts"
   ]
 }

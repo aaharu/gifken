@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>gifken preview</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script type="module">
+      import {reverse, split} from '/src/gifken.ts'
+
+      const originalDiv = document.querySelector('#original')
+      originalDiv.innerHTML = ''
+
+      const reverseDiv = document.querySelector('#reverse')
+      reverseDiv.innerHTML = ''
+
+      const splitDiv = document.querySelector('#split')
+      splitDiv.innerHTML = ''
+
+      const imageUrl = '/01_Koch-Kurve-Sechseck-alt._Def.-2.gif'
+      const response = await fetch(imageUrl)
+      const buffer = await response.arrayBuffer()
+
+      {
+        const result = await reverse(new Uint8Array(buffer))
+        const img = new Image()
+        img.src = URL.createObjectURL(new Blob([result], {type: 'image/gif'}))
+        reverseDiv.append(img)
+      }
+
+      {
+        const img = new Image()
+        img.src = imageUrl
+        originalDiv.append(img)
+      }
+
+      {
+        const results = await split(new Uint8Array(buffer))
+        for (const result of results) {
+          const img = new Image()
+          img.src = URL.createObjectURL(new Blob([result], {type: 'image/gif'}))
+          splitDiv.append(img)
+        }
+      }
+    </script>
+    <style>
+      img {
+        border: 1px solid #ddd;
+        height: 350px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>gifken preview</h1>
+    <h2>original</h2>
+    <div id="original"></div>
+    <h2>reverse</h2>
+    <div id="reverse"></div>
+    <h2>split</h2>
+    <div id="split"></div>
+  </body>
+</html>

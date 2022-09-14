@@ -4,29 +4,26 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [2.1.1](https://github.com/aaharu/gifken/compare/v2.1.0...v2.1.1) (2020-04-15)
 
-
 ### Bug Fixes
 
-* fix type declaration file path ([ddac071](https://github.com/aaharu/gifken/commit/ddac071df3be339059f11a31d4577b0fdc93838e))
+- fix type declaration file path ([ddac071](https://github.com/aaharu/gifken/commit/ddac071df3be339059f11a31d4577b0fdc93838e))
 
 ## [2.1.0](https://github.com/aaharu/gifken/compare/v2.0.0...v2.1.0) (2020-04-02)
 
-
 ### Features
 
-* export GifPresenter class ([1e2d50e](https://github.com/aaharu/gifken/commit/1e2d50ec81d853de05ecd57d21ece56b77e8660f))
+- export GifPresenter class ([1e2d50e](https://github.com/aaharu/gifken/commit/1e2d50ec81d853de05ecd57d21ece56b77e8660f))
 
 ## [2.0.0](https://github.com/aaharu/gifken/compare/v1.0.1...v2.0.0) (2019-10-14)
 
-
 ### Bug Fixes
 
-* fix README ([812cf8a](https://github.com/aaharu/gifken/commit/812cf8a656d9a42ed6f8c4ac733736367957b108))
-* output `d.ts` files ([39e4a1c](https://github.com/aaharu/gifken/commit/39e4a1c767e2962a6e371ce07908164ea5c75aa5))
+- fix README ([812cf8a](https://github.com/aaharu/gifken/commit/812cf8a656d9a42ed6f8c4ac733736367957b108))
+- output `d.ts` files ([39e4a1c](https://github.com/aaharu/gifken/commit/39e4a1c767e2962a6e371ce07908164ea5c75aa5))
 
 ### Changed
 
-* REBUILD
+- REBUILD
 
 ## [1.0.1] - 2019-06-05
 

@@ -15,4 +15,4 @@
 *.woff binary
 *.woff2 binary
 
-docs/ linguist-vendored
+.vscode/*.json linguist-language=JSON-with-Comments
