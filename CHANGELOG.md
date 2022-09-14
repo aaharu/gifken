@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.2](https://github.com/aaharu/gifken/compare/v3.0.1...v3.0.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* fix build ([7cbc994](https://github.com/aaharu/gifken/commit/7cbc9941e2865ed4e6778dee83f9c3a780da6983))
+
 ## [3.0.1](https://github.com/aaharu/gifken/compare/v3.0.0...v3.0.1) (2022-09-14)
 
 
