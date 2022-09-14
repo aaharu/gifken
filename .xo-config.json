@@ -1,0 +1,7 @@
+{
+  "semicolon": false,
+  "space": true,
+  "rules": {
+    "unicorn/prefer-module": "off"
+  }
+}

@@ -1,5 +1,8 @@
-module.exports =  {
-  semi: true,
-  singleQuote: false,
-  tabWidth: 2
-};
+module.exports = {
+  semi: false,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'es5',
+  bracketSpacing: false,
+  arrowParens: 'avoid',
+}

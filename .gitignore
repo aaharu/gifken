@@ -10,12 +10,7 @@ Desktop.ini
 
 node_modules/
 
-coverage/
-.nyc_output/
+/assets/*
+!/assets/01_Koch-Kurve-Sechseck-alt._Def.-2.gif
 
-*.pem
-*.crx
-
-/lib/
-/gifken.js
-test/sample.gif
+/dist/
