@@ -39,7 +39,7 @@ jobs:
           command: install
           args: wasm-bindgen-cli@0.2.83
         if: ${{ steps.release.outputs.release_created }}
-      - run: npm build
+      - run: npm run build
         if: ${{ steps.release.outputs.release_created }}
       - run: npm publish
         env:
