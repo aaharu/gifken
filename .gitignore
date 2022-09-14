@@ -13,6 +13,4 @@ node_modules/
 /assets/*
 !/assets/01_Koch-Kurve-Sechseck-alt._Def.-2.gif
 
-/wasm_node/
-/wasm_browser/
 /dist/

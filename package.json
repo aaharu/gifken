@@ -20,7 +20,6 @@
     "build:nodejs": "tsc ./src/node.ts --module commonjs --outDir dist --target es2017",
     "clean": "rimraf dist crate/nodejs crate/web",
     "lint": "xo",
-    "release": "standard-version",
     "prepare": "is-ci || husky install"
   },
   "repository": {
@@ -42,7 +41,6 @@
     "is-ci": "^3.0.1",
     "lint-staged": "^13.0.3",
     "rimraf": "^3.0.2",
-    "standard-version": "^9.5.0",
     "typescript": "^4.8.3",
     "vite": "^3.1.0",
     "vite-plugin-dts": "^1.5.0",

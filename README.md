@@ -1,126 +1,49 @@
 # gifken
 
-[![npm version](https://img.shields.io/npm/v/gifken.svg)](https://www.npmjs.com/package/gifken) [![Build Status](https://img.shields.io/travis/aaharu/gifken.svg)](https://travis-ci.org/aaharu/gifken) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faaharu%2Fgifken.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faaharu%2Fgifken?ref=badge_shield) [![codecov](https://codecov.io/gh/aaharu/gifken/branch/master/graph/badge.svg)](https://codecov.io/gh/aaharu/gifken)
+[![npm version](https://img.shields.io/npm/v/gifken.svg)](https://www.npmjs.com/package/gifken) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faaharu%2Fgifken.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faaharu%2Fgifken?ref=badge_shield)
 
 ## How to use
 
-### Create a GIF image in browser
+### Split an animated GIF image in browser
 
 ```html
-<div id="content"></div>
-<script src="https://unpkg.com/gifken@2/lib/gifken.umd.js"></script>
-<script type="application/javascript">
-  window.onload = () => {
-    var newgif = new gifken.Gif();
-    newgif.width = 100;
-    newgif.height = 100;
-    newgif.globalColorTable = gifken.GifColor.createColorTable([
-      new gifken.GifColor(0, 0, 0),
-      new gifken.GifColor(255, 0, 0),
-      new gifken.GifColor(0, 255, 0),
-      new gifken.GifColor(0, 0, 255),
-      new gifken.GifColor(100, 100, 255),
-      new gifken.GifColor(100, 255, 100),
-      new gifken.GifColor(255, 100, 100),
-      new gifken.GifColor(0, 255, 255),
-      new gifken.GifColor(255, 0, 255),
-      new gifken.GifColor(255, 255, 0),
-      new gifken.GifColor(255, 255, 255),
-    ]);
-    newgif.frames = [gifken.GifFrame.init(newgif.width, newgif.height)];
-    for (var i = 0; i < newgif.frames[0].pixelData.length; ++i) {
-      newgif.frames[0].pixelData[i] = i % 11;
-    }
-    var newimg = new Image();
+<script type="module">
+  import {reverse, split} from 'gifken'
 
-    // createObjectURL pattern
-    // var blob = gifken.GifPresenter.writeToBlob(newgif.writeToArrayBuffer());
-    // newimg.src = URL.createObjectURL(blob);
+  const imageUrl = '/01_Koch-Kurve-Sechseck-alt._Def.-2.gif'
+  const response = await fetch(imageUrl)
+  const buffer = await response.arrayBuffer()
 
-    // data-URL pattern
-    newimg.src = gifken.GifPresenter.writeToDataUrl(
-      newgif.writeToArrayBuffer()
-    );
-
-    document.getElementById("content").appendChild(newimg);
-  };
+  const results = await split(new Uint8Array(buffer))
+  for (const result of results) {
+    const img = new Image()
+    img.src = URL.createObjectURL(new Blob([result], {type: 'image/gif'}))
+    document.body.append(img)
+  }
 </script>
 ```
 
-### Split an animated GIF image in browser
+### Reverse an animated GIF image with Node.js
 
 ```javascript
-window.onload = function () {
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", GIF_IMAGE_URL, true);
-  xhr.responseType = "arraybuffer";
-  xhr.onload = function (e) {
-    var arrayBuffer = e.target["response"];
-    var gif = gifken.Gif.parse(arrayBuffer);
+const {readFileSync, writeFileSync} = require('fs')
+const gifken = require('gifken')
 
-    gif.split(true).forEach(function (i) {
-      var img = new Image();
-      var blob = gifken.GifPresenter.writeToBlob(i.writeToArrayBuffer());
-      img.src = URL.createObjectURL(blob);
-      document.getElementById("content").appendChild(img);
-    });
-  };
-  xhr.send();
-};
+gifken
+  .reverse(readFileSync('./assets/01_Koch-Kurve-Sechseck-alt._Def.-2.gif'))
+  .then(result => {
+    writeFileSync('reverse.gif', result)
+  })
 ```
-
-### Create a GIF image by Node.js
-
-```bash
-npm install gifken
-```
-
-```javascript
-const gifken = require("gifken"),
-  fs = require("fs"),
-  path = require("path");
-
-const newgif = new gifken.Gif();
-newgif.width = 100;
-newgif.height = 100;
-newgif.globalColorTable = gifken.GifColor.createColorTable([
-  new gifken.GifColor(0, 0, 0),
-  new gifken.GifColor(255, 0, 0),
-  new gifken.GifColor(0, 255, 0),
-  new gifken.GifColor(0, 0, 255),
-  new gifken.GifColor(100, 100, 255),
-  new gifken.GifColor(100, 255, 100),
-  new gifken.GifColor(255, 100, 100),
-  new gifken.GifColor(0, 255, 255),
-  new gifken.GifColor(255, 0, 255),
-  new gifken.GifColor(255, 255, 0),
-  new gifken.GifColor(255, 255, 255),
-]);
-newgif.frames = [gifken.GifFrame.init(newgif.width, newgif.height)];
-for (let i = 0; i < newgif.frames[0].pixelData.length; ++i) {
-  newgif.frames[0].pixelData[i] = i % 11;
-}
-const buffer = newgif.writeToArray();
-
-fs.writeFile(
-  path.resolve(__dirname, "sample.gif"),
-  Buffer.from(buffer),
-  (err) => {
-    if (err) throw err;
-    // eslint-disable-next-line no-console
-    console.log("It's saved!");
-  }
-);
-```
-
-- [API Docs](http://aaharu.github.io/gifken/docs/)
 
 ## Build
 
 To build gifken, following tools are required
 
-- Node.js >=8.0.0
-- npm
+- Node.js >=14
+- npm >=8
+- [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+- wasm-bindgen
 
 ```bash
 git clone *thisrepo*
@@ -131,7 +54,7 @@ npm run-script build
 
 ## Similar Projects
 
-- [omggif](https://github.com/deanm/omggif)
+- [gif reverser](https://github.com/migerh/rustwasm-gif)
 
 ## License
 
