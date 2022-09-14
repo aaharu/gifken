@@ -1,6 +1,6 @@
 {
   "name": "gifken",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "JavaScript library that can reverse and split animated GIFs",
   "type": "commonjs",
   "main": "./dist/node.js",
