@@ -49,7 +49,7 @@ To build gifken, following tools are required
 git clone *thisrepo*
 cd gifken
 npm install
-npm run-script build
+npm run build
 ```
 
 ## Similar Projects
