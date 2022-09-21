@@ -6,10 +6,6 @@ use js_sys::{Array, Error, Uint8Array};
 use std::vec::Vec;
 use wasm_bindgen::prelude::*;
 
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 // #[wasm_bindgen]
 // extern "C" {
 //     // Access console.log() from the wasm module
