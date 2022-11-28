@@ -16,7 +16,7 @@ default = ["console_error_panic_hook"]
 wasm-bindgen = "0.2.83"
 console_error_panic_hook = { version = "0.1", optional = true }
 js-sys = "0.3"
-image = { version = "0.24.3", default-features = false, features = ["gif"] }
+image = { version = "0.24.5", default-features = false, features = ["gif"] }
 
 [profile.release]
 lto = true

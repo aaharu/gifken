@@ -1,6 +1,7 @@
 {
   "semicolon": false,
   "space": true,
+  "ignores": ["crate"],
   "rules": {
     "unicorn/prefer-module": "off"
   }
